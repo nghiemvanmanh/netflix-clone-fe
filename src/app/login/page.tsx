@@ -8,6 +8,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Cookies from "js-cookie";
 import { fetcher } from "../../../utils/fetcher";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -27,21 +28,11 @@ export default function LoginPage() {
         password,
       });
 
-      if (response.data.accessToken) {
-        Cookies.set("accessToken", response.data.accessToken, {
-          secure: true,
-          sameSite: "strict",
-        });
+      Cookies.set("accessToken", response.data.accessToken);
+      Cookies.set("refreshToken", response.data.refreshToken);
+      Cookies.set("user", JSON.stringify(response.data.user));
+      router.push("/profiles");
 
-        if (response.data.refreshToken) {
-          Cookies.set("refreshToken", response.data.refreshToken, {
-            secure: true,
-            sameSite: "strict",
-          });
-        }
-
-        window.location.reload();
-      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Login error:", error);

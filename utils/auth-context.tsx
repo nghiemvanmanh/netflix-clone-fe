@@ -6,16 +6,8 @@ import { message } from "antd";
 import { useRouter } from "next/navigation";
 import { fetcher } from "./fetcher";
 
-interface Permission {
-  resource: string;
-  scope: string;
-  hasAccess: boolean;
-}
-
 interface AuthContextType {
   isAuthenticated: boolean;
-  permissions: Permission[];
-  checkPermission: (resource: string, scope: string) => Promise<boolean>;
   refreshToken: () => Promise<void>;
   logout: () => void;
 }
@@ -28,7 +20,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!Cookies.get("accessToken")
   );
-  const [permissions, setPermissions] = useState<Permission[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -36,46 +27,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const accessToken = Cookies.get("accessToken");
     setIsAuthenticated(!!accessToken);
   }, []);
-
-  const checkPermission = async (
-    resource: string,
-    scope: string
-  ): Promise<boolean> => {
-    if (!isAuthenticated) {
-      return false;
-    }
-
-    // Kiểm tra quyền đã cache
-    const existing = permissions.find(
-      (p) => p.resource === resource && p.scope === scope
-    );
-    if (existing) {
-      return existing.hasAccess;
-    }
-
-    try {
-      const response = await fetcher.post(`/auth/${resource}/${scope}`, {});
-      const hasAccess = response.data.message.includes("has access");
-      setPermissions((prev) => [...prev, { resource, scope, hasAccess }]);
-      return hasAccess;
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        // Token hết hạn, thử làm mới
-        try {
-          await refreshToken();
-          return checkPermission(resource, scope); // Thử lại
-        } catch {
-          setIsAuthenticated(false);
-          Cookies.remove("accessToken");
-          Cookies.remove("refreshToken");
-          router.push("/");
-          message.error("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
-          return false;
-        }
-      }
-      return false;
-    }
-  };
 
   const refreshToken = async () => {
     const refreshToken = Cookies.get("refreshToken");
@@ -103,7 +54,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     Cookies.remove("accessToken");
     Cookies.remove("refreshToken");
     setIsAuthenticated(false);
-    setPermissions([]);
     router.push("/");
     message.success("Đăng xuất thành công");
   };
@@ -112,8 +62,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     <AuthContext.Provider
       value={{
         isAuthenticated,
-        permissions,
-        checkPermission,
         refreshToken,
         logout,
       }}

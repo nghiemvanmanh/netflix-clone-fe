@@ -1,11 +1,19 @@
 "use client";
 
-import LoginPage from "./login/page";
-import HomePage from "./home/page";
-import { useAuth } from "../../utils/auth-context";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function RootPage() {
-  const { isAuthenticated } = useAuth();
+export default function HomePage() {
+  const router = useRouter();
 
-  return isAuthenticated ? <HomePage /> : <LoginPage />;
+  useEffect(() => {
+    // Redirect to demo page instead of login
+    router.push("/login");
+  }, [router]);
+
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-white text-xl">Redirecting...</div>
+    </div>
+  );
 }
