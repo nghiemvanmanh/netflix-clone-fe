@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { Director } from "../../../utils/interface";
 import Cookies from "js-cookie";
+import { baseURL } from "../../../utils/fetcher";
 interface DirectorModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -64,7 +65,9 @@ export default function DirectorModal({
       const token = Cookies.get("accessToken");
       // TODO: Replace with real API call
       const response = await fetch(
-        director ? `/director/${director.id}` : "/director/create",
+        director
+          ? `${baseURL}/directors/${director.id}`
+          : `${baseURL}/directors`,
         {
           method: director ? "PUT" : "POST",
           headers: {

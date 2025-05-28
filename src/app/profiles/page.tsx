@@ -42,7 +42,7 @@ export default function ProfilesPage() {
 
   const fetchProfiles = async () => {
     try {
-      const response = await fetcher.get(`/profile/getProfile`);
+      const response = await fetcher.get(`/profiles`);
       setProfiles(response.data);
     } catch (error) {
       console.error("Error fetching profiles:", error);

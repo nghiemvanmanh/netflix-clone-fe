@@ -39,7 +39,7 @@ export default function DirectorsPage() {
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 500));
       // TODO: Replace with real API call
-      const response = await fetcher.get("/director");
+      const response = await fetcher.get("/directors");
 
       setDirectors(response.data);
     } catch (error) {
@@ -64,7 +64,7 @@ export default function DirectorsPage() {
 
     try {
       // TODO: Replace with real API call
-      await fetcher.delete(`/director/${directorId}`);
+      await fetcher.delete(`/directors/${directorId}`);
 
       setDirectors(directors.filter((director) => director.id !== directorId));
     } catch (error) {
@@ -106,9 +106,10 @@ export default function DirectorsPage() {
           {/* Page Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Directors</h1>
+              <h1 className="text-4xl font-bold mb-2">Đạo diễn</h1>
               <p className="text-gray-400">
-                Meet the visionary directors behind your favorite content
+                Gặp gỡ những đạo diễn có tầm nhìn xa trông rộng đằng sau nội
+                dung yêu thích của bạn
               </p>
             </div>
 
@@ -118,7 +119,7 @@ export default function DirectorsPage() {
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Director
+                Thêm đạo diễn
               </Button>
             )}
           </div>

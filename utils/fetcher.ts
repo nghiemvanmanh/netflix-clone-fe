@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 export const fetcher = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/${process.env.NEXT_PUBLIC_PREFIX}`,
   withCredentials: true,
 });
 
@@ -31,7 +31,7 @@ fetcher.interceptors.response.use(
           throw new Error("Không có refresh token");
         }
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+          `${process.env.NEXT_PUBLIC_API_URL}/${process.env.NEXT_PUBLIC_PREFIX}/auth/refresh`,
           { refreshToken },
           {
             withCredentials: true,
@@ -51,3 +51,5 @@ fetcher.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const baseURL = `${process.env.NEXT_PUBLIC_API_URL}/${process.env.NEXT_PUBLIC_PREFIX}`;

@@ -18,3 +18,32 @@ export interface Director {
   description: string;
   photoUrl?: string;
 }
+
+export interface Genre {
+  id: number;
+  name: string;
+}
+export interface MovieType {
+  id: number;
+  name: string;
+}
+
+export interface Movie {
+  id: number;
+  title: string;
+  description?: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  duration: string;
+  releaseDate: Date;
+  genres: Genre[];
+  movieTypes: MovieType[];
+  actors: Actor[];
+  directors: Director[];
+}
+
+export interface User {
+  id: number;
+  email: string;
+  isAdmin: boolean;
+}

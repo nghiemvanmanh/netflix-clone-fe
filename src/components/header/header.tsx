@@ -23,7 +23,6 @@ export default function Header() {
       }
       const parsedProfile = JSON.parse(profileData);
       setProfile(parsedProfile);
-
     };
 
     fetchData();
@@ -44,31 +43,33 @@ export default function Header() {
     <header className="fixed top-0 w-full z-50 bg-gradient-to-b from-black to-transparent">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center space-x-8">
-          <h1 className="text-2xl font-bold text-red-600">NETFLIX</h1>
+          <h1 className="text-2xl font-bold text-red-600">
+            <a href="/home">NETFLIX</a>
+          </h1>
           <nav className="hidden md:flex space-x-6">
-            <a href="#" className="hover:text-gray-300 transition-colors">
-              Home
+            <a href="/home" className="hover:text-gray-300 transition-colors">
+              Trang chủ
             </a>
             <a href="#" className="hover:text-gray-300 transition-colors">
               TV Shows
             </a>
-            <a href="#" className="hover:text-gray-300 transition-colors">
+            <a href="/movies" className="hover:text-gray-300 transition-colors">
               Movies
             </a>
             <a href="#" className="hover:text-gray-300 transition-colors">
-              New & Popular
+              Mới & Phổ biến
             </a>
             <a href="#" className="hover:text-gray-300 transition-colors">
-              My List
+              Danh sách của tôi
             </a>
             <a href="/actors" className="hover:text-gray-300 transition-colors">
-              Actors
+              Diễn viên
             </a>
             <a
               href="/directors"
               className="hover:text-gray-300 transition-colors"
             >
-              Directors
+              Đạo diễn
             </a>
           </nav>
         </div>

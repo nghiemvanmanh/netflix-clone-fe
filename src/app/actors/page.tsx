@@ -40,7 +40,7 @@ export default function ActorsPage() {
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const response = await fetcher.get("/actor");
+      const response = await fetcher.get("/actors");
       setActors(response.data);
     } catch (error) {
       console.error("Error fetching actors:", error);
@@ -103,9 +103,10 @@ export default function ActorsPage() {
           {/* Page Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Actors</h1>
+              <h1 className="text-4xl font-bold mb-2">Diễn viên</h1>
               <p className="text-gray-400">
-                Discover talented actors from your favorite shows and movies
+                Khám phá các diễn viên tài năng từ các chương trình và bộ phim
+                yêu thích của bạn
               </p>
             </div>
 
@@ -115,7 +116,7 @@ export default function ActorsPage() {
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Actor
+                Thêm diễn viên
               </Button>
             )}
           </div>

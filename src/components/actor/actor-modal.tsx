@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Actor } from "../../../utils/interface";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import { baseURL } from "../../../utils/fetcher";
 
 interface ActorModalProps {
   isOpen: boolean;
@@ -65,7 +66,7 @@ export default function ActorModal({
       const token = Cookies.get("accessToken");
       // TODO: Replace with real API call
       const response = await fetch(
-        actor ? `/actor/${actor.id}` : "/actor/create",
+        actor ? `${baseURL}/actors/${actor.id}` : `${baseURL}/actors`,
         {
           method: actor ? "PUT" : "POST",
           headers: {

@@ -57,7 +57,7 @@ export default function AddProfileModal({
     setLoading(true);
 
     try {
-      const response = await fetcher.post("/profile/create", {
+      const response = await fetcher.post("/profiles", {
         name: name.trim(),
         avatarUrl: selectedAvatar,
         isKids,
