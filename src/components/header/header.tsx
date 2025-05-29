@@ -59,7 +59,10 @@ export default function Header() {
             <a href="#" className="hover:text-gray-300 transition-colors">
               Mới & Phổ biến
             </a>
-            <a href="#" className="hover:text-gray-300 transition-colors">
+            <a
+              href="/my-lists"
+              className="hover:text-gray-300 transition-colors"
+            >
               Danh sách của tôi
             </a>
             <a href="/actors" className="hover:text-gray-300 transition-colors">

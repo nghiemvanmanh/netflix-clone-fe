@@ -33,7 +33,7 @@ export interface Movie {
   title: string;
   description?: string;
   thumbnailUrl: string;
-  videoUrl: string;
+  videoUrl?: string;
   duration: string;
   releaseDate: Date;
   genres: Genre[];
@@ -46,4 +46,10 @@ export interface User {
   id: number;
   email: string;
   isAdmin: boolean;
+}
+
+export interface MyList {
+  id: number;
+  userId: number;
+  movieId: number;
 }

@@ -12,18 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
 import { Movie } from "../../../utils/interface";
 import { baseURL, fetcher } from "../../../utils/fetcher";
 import Cookies from "js-cookie";
+import { MultiSelectField } from "./MultiSelectField";
 
 interface MovieModalProps {
   isOpen: boolean;
@@ -93,7 +85,7 @@ export default function MovieModal({
         title: movie.title,
         description: movie.description || "",
         thumbnailUrl: movie.thumbnailUrl,
-        videoUrl: movie.videoUrl,
+        videoUrl: movie.videoUrl || "",
         duration: movie.duration,
         releaseDate: movie.releaseDate
           ? typeof movie.releaseDate === "string"
@@ -152,29 +144,6 @@ export default function MovieModal({
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleMultiSelect = (field: keyof typeof formData, value: number) => {
-    const currentValues = formData[field] as number[];
-    if (currentValues.includes(value)) {
-      setFormData({
-        ...formData,
-        [field]: currentValues.filter((id) => id !== value),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [field]: [...currentValues, value],
-      });
-    }
-  };
-
-  const removeSelection = (field: keyof typeof formData, value: number) => {
-    const currentValues = formData[field] as number[];
-    setFormData({
-      ...formData,
-      [field]: currentValues.filter((id) => id !== value),
-    });
   };
 
   return (
@@ -297,170 +266,44 @@ export default function MovieModal({
           </div>
 
           {/* Genres */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Genres *</Label>
-            <Select
-              onValueChange={(value) => handleMultiSelect("genreIds", value)}
-            >
-              <SelectTrigger className="bg-gray-800 border-gray-600 text-white w-full">
-                <SelectValue placeholder="Select genres" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-600">
-                {genres.map((genre) => (
-                  <SelectItem
-                    key={genre.value}
-                    value={genre.value}
-                    className="text-white"
-                  >
-                    {genre.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.genreIds.map((genreId) => {
-                const genre = genres.find((g) => g.value === genreId);
-                return genre ? (
-                  <Badge
-                    key={genreId}
-                    variant="secondary"
-                    className="bg-red-600 text-white"
-                  >
-                    {genre.label}
-                    <X
-                      className="w-3 h-3 ml-1 cursor-pointer"
-                      onClick={() => removeSelection("genreIds", genreId)}
-                    />
-                  </Badge>
-                ) : null;
-              })}
-            </div>
-          </div>
+          <MultiSelectField
+            label="Genres"
+            field="genreIds"
+            items={genres}
+            formData={formData}
+            setFormData={setFormData}
+            badgeColor="bg-red-600"
+          />
 
           {/* Movie Types */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Movie Types *</Label>
-            <Select
-              onValueChange={(value) =>
-                handleMultiSelect("movieTypeIds", value)
-              }
-            >
-              <SelectTrigger className="bg-gray-800 border-gray-600 text-white w-full">
-                <SelectValue placeholder="Select movie types" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-600">
-                {movieTypes.map((type) => (
-                  <SelectItem
-                    key={type.value}
-                    value={type.value}
-                    className="text-white"
-                  >
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.movieTypeIds.map((typeId) => {
-                const type = movieTypes.find((t) => t.value === typeId);
-                return type ? (
-                  <Badge
-                    key={typeId}
-                    variant="secondary"
-                    className="bg-blue-600 text-white"
-                  >
-                    {type.label}
-                    <X
-                      className="w-3 h-3 ml-1 cursor-pointer"
-                      onClick={() => removeSelection("movieTypeIds", typeId)}
-                    />
-                  </Badge>
-                ) : null;
-              })}
-            </div>
-          </div>
+          <MultiSelectField
+            label="Movie Types"
+            field="movieTypeIds"
+            items={movieTypes}
+            formData={formData}
+            setFormData={setFormData}
+            badgeColor="bg-blue-600"
+          />
 
           {/* Actors */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Actors *</Label>
-            <Select
-              onValueChange={(value) => handleMultiSelect("actorIds", value)}
-            >
-              <SelectTrigger className="bg-gray-800 border-gray-600 text-white w-full">
-                <SelectValue placeholder="Select actors" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-600">
-                {actors.map((actor) => (
-                  <SelectItem
-                    key={actor.value}
-                    value={actor.value}
-                    className="text-white"
-                  >
-                    {actor.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.actorIds.map((actorId) => {
-                const actor = actors.find((a) => a.value === actorId);
-                return actor ? (
-                  <Badge
-                    key={actorId}
-                    variant="secondary"
-                    className="bg-green-600 text-white"
-                  >
-                    {actor.label}
-                    <X
-                      className="w-3 h-3 ml-1 cursor-pointer"
-                      onClick={() => removeSelection("actorIds", actorId)}
-                    />
-                  </Badge>
-                ) : null;
-              })}
-            </div>
-          </div>
+          <MultiSelectField
+            label="Actors"
+            field="actorIds"
+            items={actors}
+            formData={formData}
+            setFormData={setFormData}
+            badgeColor="bg-green-600"
+          />
 
           {/* Directors */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Directors *</Label>
-            <Select
-              onValueChange={(value) => handleMultiSelect("directorIds", value)}
-            >
-              <SelectTrigger className="bg-gray-800 border-gray-600 text-white w-full">
-                <SelectValue placeholder="Select directors" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-600">
-                {directors.map((director) => (
-                  <SelectItem
-                    key={director.value}
-                    value={director.value}
-                    className="text-white"
-                  >
-                    {director.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.directorIds.map((directorId) => {
-                const director = directors.find((d) => d.value === directorId);
-                return director ? (
-                  <Badge
-                    key={directorId}
-                    variant="secondary"
-                    className="bg-purple-600 text-white"
-                  >
-                    {director.label}
-                    <X
-                      className="w-3 h-3 ml-1 cursor-pointer"
-                      onClick={() => removeSelection("directorIds", directorId)}
-                    />
-                  </Badge>
-                ) : null;
-              })}
-            </div>
-          </div>
+          <MultiSelectField
+            label="Directors"
+            field="directorIds"
+            items={directors}
+            formData={formData}
+            setFormData={setFormData}
+            badgeColor="bg-purple-600"
+          />
 
           {/* Thumbnail Preview */}
           {formData.thumbnailUrl && (

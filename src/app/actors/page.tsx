@@ -9,14 +9,9 @@ import ActorModal from "@/components/actor/actor-modal";
 import Cookies from "js-cookie";
 import { fetcher } from "../../../utils/fetcher";
 import Header from "@/components/header/header";
-import { Actor } from "../../../utils/interface";
+import { Actor, User } from "../../../utils/interface";
 import Image from "next/image";
-
-interface AppUser {
-  id: number;
-  email: string;
-  isAdmin: boolean;
-}
+import PersonCard from "@/components/PersonCard";
 
 export default function ActorsPage() {
   const [loading, setLoading] = useState(true);
@@ -24,7 +19,7 @@ export default function ActorsPage() {
   const [editingActor, setEditingActor] = useState<Actor | null>(null);
   const router = useRouter();
   const [actors, setActors] = useState<Actor[]>([]);
-  const [user, setUser] = useState<AppUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const userData = Cookies.get("user");
@@ -124,55 +119,13 @@ export default function ActorsPage() {
           {/* Actors Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
             {actors.map((actor) => (
-              <div key={actor.id} className="group cursor-pointer">
-                <div className="relative overflow-hidden rounded-lg mb-3">
-                  <Image
-                    src={actor.photoUrl || "/placeholder.svg"}
-                    alt={actor.name}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                    width={256}
-                    height={256}
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-
-                  {/* Admin Controls */}
-                  {user?.isAdmin && (
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="flex space-x-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-8 h-8 p-0 bg-black/50 border-gray-600 hover:bg-black/70"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditActor(actor);
-                          }}
-                        >
-                          <Edit className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-8 h-8 p-0 bg-black/50 border-gray-600 hover:bg-red-600/70"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteActor(actor.id);
-                          }}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg group-hover:text-gray-300 transition-colors">
-                    {actor.name}
-                  </h3>
-                  <p className="text-gray-400 text-sm">{actor.description}</p>
-                </div>
-              </div>
+              <PersonCard
+                key={actor.id}
+                person={actor}
+                isAdmin={user?.isAdmin}
+                onEdit={handleEditActor}
+                onDelete={handleDeleteActor}
+              />
             ))}
           </div>
         </div>
