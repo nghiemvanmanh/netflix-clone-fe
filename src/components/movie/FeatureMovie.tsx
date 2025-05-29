@@ -1,14 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Movie } from "../../../utils/interface";
 import { Button } from "@/components/ui/button";
 import { Info, Play } from "lucide-react";
+import { useRouter } from "next/navigation";
+import VideoPlayer from "./video-player";
 
 interface FeaturedMovieProps {
   movie: Movie;
 }
 
 export function FeaturedMovie({ movie }: FeaturedMovieProps) {
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const router = useRouter();
+
+  const handleMoreInfo = (movieId: number) => {
+    router.push(`/movies/${movieId}`);
+  };
+  const handlePlayMovie = (movie: Movie) => {
+    setSelectedMovie(movie);
+    setShowVideoPlayer(true);
+  };
+  const handleCloseVideo = () => {
+    setShowVideoPlayer(false);
+    setSelectedMovie(null);
+  };
   return (
     <section className="relative h-screen">
       <div className="absolute inset-0">
@@ -40,13 +57,17 @@ export function FeaturedMovie({ movie }: FeaturedMovieProps) {
             </span>
           </div>
           <div className="flex space-x-4">
-            <Button className="bg-white text-black hover:bg-gray-200 px-8 py-3 text-lg font-semibold cursor-pointer">
+            <Button
+              className="bg-white text-black hover:bg-gray-200 px-8 py-3 text-lg font-semibold cursor-pointer"
+              onClick={() => handlePlayMovie(movie)}
+            >
               <Play className="w-5 h-5 mr-2" />
               Xem
             </Button>
             <Button
               variant="outline" // Sửa thành outlined theo lỗi bạn báo trước
               className="border-gray-400 text-black hover:border-white px-8 py-3 text-lg cursor-pointer"
+              onClick={() => handleMoreInfo(movie.id)}
             >
               <Info className="w-5 h-5 mr-2" />
               Chi tiết
@@ -54,6 +75,13 @@ export function FeaturedMovie({ movie }: FeaturedMovieProps) {
           </div>
         </div>
       </div>
+      {showVideoPlayer && selectedMovie && (
+        <VideoPlayer
+          videoUrl="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+          title={selectedMovie.title}
+          onClose={handleCloseVideo}
+        />
+      )}
     </section>
   );
 }

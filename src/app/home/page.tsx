@@ -3,26 +3,36 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { fetcher } from "../../../utils/fetcher";
-import { Movie, Profile } from "../../../utils/interface";
+import { Movie, Profile, User } from "../../../utils/interface";
 import Header from "@/components/header/header";
 import MovieCard from "@/components/movie/MovieCard";
 import { FeaturedMovie } from "@/components/movie/FeatureMovie";
 import { motion, AnimatePresence } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
 
+import "swiper/css";
+import parseJwt from "../../../utils/token";
+import Cookies from "js-cookie";
 export default function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [myList, setMyList] = useState<number[]>([]);
+
   const router = useRouter();
 
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
+    const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
+    const parsedProfile = profileData ? JSON.parse(profileData) : null;
     if (!profileData) {
       router.push("/profiles");
       return;
     }
-    setProfile(JSON.parse(profileData));
-
+    setProfile(parsedProfile);
+    setUser(parsedCookie);
     let intervalId: NodeJS.Timeout | null = null;
 
     const fetchMovies = async () => {
@@ -42,12 +52,22 @@ export default function HomePage() {
         console.error("Error fetching movies:", error);
       }
     };
+
+    const fetchMyList = async () => {
+      if (parsedCookie?.id && parsedProfile?.id) {
+        const response = await fetcher.get(
+          `/users/${parsedCookie.id}/profiles/${parsedProfile.id}/my-lists`
+        );
+        setMyList(response.data?.map((item: any) => item.movie.id));
+      }
+    };
+    fetchMyList();
     fetchMovies();
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [router]);
+  }, []);
 
   if (!profile) {
     return (
@@ -57,11 +77,15 @@ export default function HomePage() {
     );
   }
 
+  const handleMoreInfo = (movieId: number) => {
+    router.push(`/movies/${movieId}`);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <Header />
-
+      {/* Search Overlay */}
       {/* Featured Content */}
       <AnimatePresence mode="wait">
         {featuredMovie && (
@@ -82,23 +106,57 @@ export default function HomePage() {
         <div className="space-y-12">
           <div>
             <h2 className="text-2xl font-bold mb-6">Xu hướng hiện tại</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+
+            <Swiper
+              modules={[Autoplay]}
+              autoplay={{
+                delay: 3000, // 5 giây
+                disableOnInteraction: false, // tiếp tục autoplay sau khi người dùng tương tác
+                pauseOnMouseEnter: true,
+              }}
+              spaceBetween={10}
+              slidesPerView={5}
+              loop={true}
+            >
               {movies.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
+                <SwiperSlide key={movie.id}>
+                  <MovieCard
+                    movie={movie}
+                    myList={myList}
+                    setMyList={setMyList}
+                  />
+                </SwiperSlide>
               ))}
-            </div>
+            </Swiper>
           </div>
 
           <div>
             <h2 className="text-2xl font-bold mb-6">Phổ biến trên Netflix</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+
+            <Swiper
+              modules={[Autoplay]}
+              autoplay={{
+                delay: 3000, // 3 giây
+                disableOnInteraction: false, // tiếp tục autoplay sau khi người dùng tương tác
+                pauseOnMouseEnter: true,
+              }}
+              spaceBetween={10}
+              slidesPerView={5}
+              loop={true}
+            >
               {movies
                 .slice()
                 .reverse()
                 .map((movie) => (
-                  <MovieCard key={movie.id} movie={movie} />
+                  <SwiperSlide key={movie.id}>
+                    <MovieCard
+                      movie={movie}
+                      myList={myList}
+                      setMyList={setMyList}
+                    />
+                  </SwiperSlide>
                 ))}
-            </div>
+            </Swiper>
           </div>
         </div>
       </section>

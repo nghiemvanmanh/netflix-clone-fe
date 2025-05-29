@@ -114,15 +114,16 @@ export default function MoviesPage() {
             )}
           </div>
           {/* Movies Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+          <div className="flex flex-wrap -mx-16">
             {movies.map((movie) => (
-              <MovieGrid
-                key={movie.id}
-                movie={movie}
-                isAdmin={user?.isAdmin}
-                onEdit={handleEditMovie}
-                onDelete={handleDeleteMovie}
-              />
+              <div key={movie.id} className="w-1/2 sm:w-1/3 md:w-1/4 px-4 mb-6">
+                <MovieGrid
+                  movie={movie}
+                  isAdmin={user?.isAdmin}
+                  onEdit={handleEditMovie}
+                  onDelete={handleDeleteMovie}
+                />
+              </div>
             ))}
           </div>
         </div>

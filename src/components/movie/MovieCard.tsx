@@ -10,34 +10,34 @@ import Cookies from "js-cookie";
 import { fetcher } from "../../../utils/fetcher";
 import parseJwt from "../../../utils/token";
 import { notification } from "antd";
+import { motion, AnimatePresence } from "framer-motion";
+import VideoPlayer from "./video-player";
+
 interface MovieCardProps {
   movie: Movie;
+  myList: number[] | null;
+  setMyList: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-export default function MovieCard({ movie }: MovieCardProps) {
-  const [myList, setMyList] = useState<number[]>([]);
+export default function MovieCard({
+  movie,
+  myList,
+  setMyList,
+}: MovieCardProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   useEffect(() => {
+    const profileData = localStorage.getItem("selectedProfile");
     const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
-    setUser(parsedCookie);
-    const selectedProfile = localStorage.getItem("selectedProfile");
-    const parsedProfile = selectedProfile ? JSON.parse(selectedProfile) : null;
+    const parsedProfile = profileData ? JSON.parse(profileData) : null;
     setProfile(parsedProfile);
-    const fetchMyList = async () => {
-      if (parsedCookie?.id && parsedProfile?.id) {
-        const response = await fetcher.get(
-          `/users/${parsedCookie.id}/profiles/${parsedProfile.id}/my-lists`
-        );
-        setMyList(response.data?.map((item: any) => item.movie.id));
-      }
-    };
-
-    fetchMyList();
+    setUser(parsedCookie);
   }, []);
 
   const handleToggleMyList = async (movieId: number) => {
-    const isInList = myList.includes(movieId);
+    const isInList = myList?.includes(movieId);
     console.log({ myList });
     try {
       if (isInList) {
@@ -49,7 +49,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
           message: "Đã xóa khỏi danh sách",
           description: "Phim đã được xóa khỏi danh sách của bạn.",
         });
-        setMyList(myList.filter((id) => id !== movieId));
+        setMyList((myList || []).filter((id) => id !== movieId));
       } else {
         // TODO: Add to My List API call
         await fetcher.post(
@@ -62,7 +62,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
           message: "Đã thêm vào danh sách",
           description: "Phim đã được thêm vào danh sách của bạn.",
         });
-        setMyList([...myList, movieId]);
+        setMyList([...(myList || []), movieId]);
       }
     } catch (error: any) {
       const message =
@@ -75,16 +75,28 @@ export default function MovieCard({ movie }: MovieCardProps) {
       });
     }
   };
+
+  const handlePlayMovie = (movie: Movie) => {
+    setSelectedMovie(movie);
+    setShowVideoPlayer(true);
+  };
+
+  const handleCloseVideo = () => {
+    setShowVideoPlayer(false);
+    setSelectedMovie(null);
+  };
   return (
-    <div className="flex-shrink-0 w-64 cursor-pointer group">
+    <div className="flex-shrink-0 w-80 cursor-pointer group">
       <div className="relative overflow-hidden rounded-lg transform group-hover:scale-110 transition-all duration-300 group-hover:z-10">
-        <Image
-          width={256}
-          height={256}
-          src={movie.thumbnailUrl || "/placeholder.svg"}
-          alt={movie.title}
-          className="w-full h-36 object-cover"
-        />
+        <div className="relative w-full h-48 rounded-lg overflow-hidden">
+          <Image
+            fill
+            src={movie.thumbnailUrl || "/placeholder.svg"}
+            alt={movie.title}
+            className="object-cover rounded-lg"
+          />
+        </div>
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <div className="absolute bottom-0 left-0 right-0 p-3 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
           <div className="flex items-center justify-between mb-2">
@@ -93,6 +105,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
                 size="sm"
                 variant="outline"
                 className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer"
+                onClick={() => handlePlayMovie(movie)}
               >
                 <Play className="w-4 h-4" />
               </Button>
@@ -107,14 +120,32 @@ export default function MovieCard({ movie }: MovieCardProps) {
             <Button
               size="sm"
               variant="outline"
-              className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer"
+              className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer overflow-hidden"
               onClick={() => handleToggleMyList(movie.id)}
             >
-              {myList.includes(movie.id) ? (
-                <Check className="w-4 h-4" />
-              ) : (
-                <Plus className="w-4 h-4" />
-              )}
+              <AnimatePresence mode="wait" initial={false}>
+                {myList?.includes(movie.id) ? (
+                  <motion.div
+                    key="check"
+                    initial={{ opacity: 0, rotate: -180, scale: 0.3 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: 180, scale: 0.3 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <Check className="w-4 h-4" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="plus"
+                    initial={{ opacity: 0, rotate: 180, scale: 0.3 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: -180, scale: 0.3 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Button>
           </div>
           <div className="text-xs text-gray-300">
@@ -140,6 +171,14 @@ export default function MovieCard({ movie }: MovieCardProps) {
         </p>
         <p className="text-gray-500 text-xs mt-1">{movie.duration}</p>
       </div>
+      {/* Video Player Modal */}
+      {showVideoPlayer && selectedMovie && (
+        <VideoPlayer
+          videoUrl="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+          title={selectedMovie.title}
+          onClose={handleCloseVideo}
+        />
+      )}
     </div>
   );
 }

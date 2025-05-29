@@ -12,9 +12,10 @@ import Cookies from "js-cookie";
 import parseJwt from "../../../utils/token";
 export default function MyListsPage() {
   const [myListMovies, setMyListMovies] = useState<Movie[]>([]);
+
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
+  const [myList, setMyList] = useState<number[]>([]);
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
     const cookie = Cookies.get("accessToken");
@@ -23,13 +24,10 @@ export default function MyListsPage() {
 
     const fetchMyList = async () => {
       try {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // TODO: Replace with real API call
         const response = await fetcher.get(
           `/users/${parsedCookie?.id}/profiles/${parsedProfile?.id}/my-lists`
         );
+        setMyList(response.data?.map((item: any) => item.movie.id));
         setMyListMovies(response.data);
       } catch (error) {
         console.error("Error fetching My List:", error);
@@ -37,14 +35,13 @@ export default function MyListsPage() {
         setLoading(false);
       }
     };
-
     fetchMyList();
-  }, [router]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <Header />
+      <Header  />
 
       {/* Main Content */}
       <main className="pt-20 px-6 pb-20">
@@ -63,7 +60,12 @@ export default function MyListsPage() {
           {myListMovies.length > 0 ? (
             <div className="grid grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))] gap-20">
               {myListMovies.map((movie: any) => (
-                <MovieCard key={movie.movie.id} movie={movie.movie} />
+                <MovieCard
+                  key={movie.movie.id}
+                  movie={movie.movie}
+                  myList={myList}
+                  setMyList={setMyList}
+                />
               ))}
             </div>
           ) : (

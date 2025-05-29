@@ -13,15 +13,16 @@ type Props = {
 
 export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
   return (
-    <div className="group cursor-pointer">
+    <div className="group cursor-pointer w-80">
       <div className="relative overflow-hidden rounded-lg mb-3 transform group-hover:scale-105 transition-all duration-300 group-hover:z-10">
-        <Image
-          width={384}
-          height={256}
-          src={movie.thumbnailUrl || "/placeholder.svg"}
-          alt={movie.title}
-          className="w-full h-48 object-cover"
-        />
+        <div className="relative w-full h-48 rounded-lg overflow-hidden">
+          <Image
+            fill
+            src={movie.thumbnailUrl || "/placeholder.svg"}
+            alt={movie.title}
+            className="object-cover rounded-lg"
+          />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         {/* Hover Controls */}
