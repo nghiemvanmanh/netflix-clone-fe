@@ -8,6 +8,8 @@ import { Movie, Profile, User } from "../../../utils/interface";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { fetcher } from "../../../utils/fetcher";
+import parseJwt from "../../../utils/token";
+import { notification } from "antd";
 interface MovieCardProps {
   movie: Movie;
 }
@@ -17,45 +19,60 @@ export default function MovieCard({ movie }: MovieCardProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
-    const userData = Cookies.get("user");
-    const parsedUser = JSON.parse(userData || "{}");
-    setUser(parsedUser);
+    const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
+    setUser(parsedCookie);
     const selectedProfile = localStorage.getItem("selectedProfile");
-    if (selectedProfile) {
-      setProfile(JSON.parse(selectedProfile));
-    } else {
-      console.error("No profile selected");
-    }
+    const parsedProfile = selectedProfile ? JSON.parse(selectedProfile) : null;
+    setProfile(parsedProfile);
     const fetchMyList = async () => {
-      const response = await fetcher.get(
-        `/users/${user?.id}/profiles/${profile?.id}/my-list`
-      );
-      const userMyList = response.data || [];
-      setMyList(userMyList.map((item: any) => item.movieId));
+      if (parsedCookie?.id && parsedProfile?.id) {
+        const response = await fetcher.get(
+          `/users/${parsedCookie.id}/profiles/${parsedProfile.id}/my-lists`
+        );
+        setMyList(response.data?.map((item: any) => item.movie.id));
+      }
     };
+
     fetchMyList();
   }, []);
+
   const handleToggleMyList = async (movieId: number) => {
     const isInList = myList.includes(movieId);
+    console.log({ myList });
     try {
       if (isInList) {
         // TODO: Remove from My List API call
         await fetcher.delete(
-          `/users/${user?.id}/profiles/${profile?.id}/my-list/${movieId}`
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists/${movieId}`
         );
+        notification.warning({
+          message: "Đã xóa khỏi danh sách",
+          description: "Phim đã được xóa khỏi danh sách của bạn.",
+        });
         setMyList(myList.filter((id) => id !== movieId));
       } else {
         // TODO: Add to My List API call
         await fetcher.post(
-          `/users/${user?.id}/profiles/${profile?.id}/my-list`,
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists`,
           {
             movieId,
           }
         );
+        notification.success({
+          message: "Đã thêm vào danh sách",
+          description: "Phim đã được thêm vào danh sách của bạn.",
+        });
         setMyList([...myList, movieId]);
       }
-    } catch (error) {
-      console.error("Error updating My List:", error);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        "Có lỗi xảy ra khi thêm vào danh sách";
+
+      notification.error({
+        message: "Lỗi",
+        description: message,
+      });
     }
   };
   return (

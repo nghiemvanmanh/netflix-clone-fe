@@ -7,6 +7,8 @@ import { Movie, Profile } from "../../../utils/interface";
 import Header from "@/components/header/header";
 import MovieCard from "@/components/movie/MovieCard";
 import { FeaturedMovie } from "@/components/movie/FeatureMovie";
+import { motion, AnimatePresence } from "framer-motion";
+
 export default function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
@@ -61,7 +63,19 @@ export default function HomePage() {
       <Header />
 
       {/* Featured Content */}
-      {featuredMovie && <FeaturedMovie movie={featuredMovie} />}
+      <AnimatePresence mode="wait">
+        {featuredMovie && (
+          <motion.div
+            key={featuredMovie.id} // 👈 quan trọng để Framer biết có sự thay đổi
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.8 }}
+          >
+            <FeaturedMovie movie={featuredMovie} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Content Rows */}
       <section className="relative z-10 -mt-32 px-6 pb-20">
