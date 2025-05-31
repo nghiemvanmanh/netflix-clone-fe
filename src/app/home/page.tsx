@@ -77,10 +77,6 @@ export default function HomePage() {
     );
   }
 
-  const handleMoreInfo = (movieId: number) => {
-    router.push(`/movies/${movieId}`);
-  };
-
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}

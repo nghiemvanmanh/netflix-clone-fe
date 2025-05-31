@@ -11,12 +11,16 @@ import {
   Share,
   ArrowLeft,
   Star,
+  Check,
 } from "lucide-react";
-import { Movie, Profile } from "../../../../utils/interface";
+import { Genre, Movie, Profile, User } from "../../../../utils/interface";
 import { fetcher } from "../../../../utils/fetcher";
-import VideoPlayer from "@/components/movie/video-player";
 import Header from "@/components/header/header";
-
+import Image from "next/image";
+import parseJwt from "../../../../utils/token";
+import Cookies from "js-cookie";
+import { notification } from "antd";
+import { AnimatePresence, motion } from "framer-motion";
 export default function MovieDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -24,30 +28,42 @@ export default function MovieDetailPage() {
 
   const [movie, setMovie] = useState<Movie | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [myList, setMyList] = useState<number[]>([]);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
-    if (!profileData) {
-      router.push("/profiles");
-      return;
-    }
+    const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
+    const parsedProfile = profileData ? JSON.parse(profileData) : null;
+    setProfile(parsedProfile);
+    setUser(parsedCookie);
+    const fetchMyList = async () => {
+      if (parsedCookie?.id && parsedProfile?.id) {
+        const response = await fetcher.get(
+          `/users/${parsedCookie.id}/profiles/${parsedProfile.id}/my-lists`
+        );
+        setMyList(response.data?.map((item: any) => item.movie.id));
+      }
+    };
+
     const fetchMovieDetails = async () => {
       try {
         const response = await fetcher.get(`/movies/${movieId}`);
         console.log({ response });
         setMovie(response.data);
-
-        // // Get similar movies (same genre)
-        // const similar = response.data
-        //   .filter(
-        //     (m: any) =>
-        //       m.id !== response.data.id && m.genre === response.data.genre
-        //   )
-        //   .slice(0, 6);
-        // setSimilarMovies(similar);
+        const allMovies = await fetcher.get("/movies");
+        const similarMovies = allMovies.data
+          .filter(
+            (m: Movie) =>
+              m.id !== response.data?.id &&
+              m.genres.some((genre: Genre) =>
+                response.data?.genres.some((g: Genre) => g.id === genre.id)
+              )
+          )
+          .slice(0, 6);
+        setSimilarMovies(similarMovies);
       } catch (error) {
         console.error("Error fetching movie details:", error);
         router.push("/home");
@@ -55,18 +71,50 @@ export default function MovieDetailPage() {
         setLoading(false);
       }
     };
-    const parsedProfile = JSON.parse(profileData);
-    setProfile(parsedProfile);
 
+    fetchMyList();
     fetchMovieDetails();
   }, [movieId, router]);
+  const handleToggleMyList = async (movieId: number) => {
+    const isInList = myList?.includes(movieId);
+    try {
+      if (isInList) {
+        // TODO: Remove from My List API call
+        await fetcher.delete(
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists/${movieId}`
+        );
+        notification.warning({
+          message: "Đã xóa khỏi danh sách",
+          description: "Phim đã được xóa khỏi danh sách của bạn.",
+        });
+        setMyList((myList || []).filter((id) => id !== movieId));
+      } else {
+        // TODO: Add to My List API call
+        await fetcher.post(
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists`,
+          {
+            movieId,
+          }
+        );
+        notification.success({
+          message: "Đã thêm vào danh sách",
+          description: "Phim đã được thêm vào danh sách của bạn.",
+        });
+        setMyList([...(myList || []), movieId]);
+      }
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        "Có lỗi xảy ra khi thêm vào danh sách";
 
-  const handlePlay = () => {
-    setShowVideoPlayer(true);
+      notification.warning({
+        message: "Thông báo",
+        description: message,
+      });
+    }
   };
-
-  const handleCloseVideo = () => {
-    setShowVideoPlayer(false);
+  const handlePlay = () => {
+    router.push(`/watch/${movieId}`);
   };
 
   if (loading) {
@@ -88,23 +136,15 @@ export default function MovieDetailPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      {/* Video Player Modal */}
-      {showVideoPlayer && (
-        <VideoPlayer
-          videoUrl="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-          title={movie.title}
-          onClose={handleCloseVideo}
-        />
-      )}
 
       {/* Back Button */}
       <div className="fixed top-6 left-6 z-40 mt-10">
         <Button
           variant="ghost"
-          className="bg-black/50 text-white rounded-full w-12 h-12 p-0 cursor-pointer"
+          className="bg-black/50 hover:bg-white/50 text-white rounded-full w-12 h-12 p-0 cursor-pointer"
           onClick={() => router.back()}
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft style={{ width: "25px", height: "30px" }} />
         </Button>
       </div>
 
@@ -133,9 +173,10 @@ export default function MovieDetailPage() {
               </span>
               <span className="text-gray-300">{movie.duration}</span>
               <span className="border border-gray-500 px-2 py-1 rounded text-xs">
-                HD
+                4K Ultra HD, HDR, HD
               </span>
             </div>
+
             <div className="flex items-center space-x-4 mb-6">
               <span className="bg-gray-800 px-3 py-1 rounded-full text-sm">
                 {movie.movieTypes.map((m) => m.name).join(", ")}
@@ -153,7 +194,7 @@ export default function MovieDetailPage() {
 
             <div className="flex space-x-4 mb-8">
               <Button
-                className="bg-white text-black hover:bg-gray-200 px-8 py-3 text-lg font-semibold"
+                className="bg-white text-black cursor-pointer hover:bg-gray-200 px-8 py-3 text-lg font-semibold"
                 onClick={handlePlay}
               >
                 <Play className="w-6 h-6 mr-2" />
@@ -161,53 +202,76 @@ export default function MovieDetailPage() {
               </Button>
               <Button
                 variant="outline"
-                className="border-gray-400 text-black hover:border-white px-8 py-3 text-lg"
+                className="border-gray-400 text-black cursor-pointer hover:border-white"
+                onClick={() => handleToggleMyList(+movieId)}
               >
-                <Plus className="w-6 h-6 mr-2" />
-                My List
+                <AnimatePresence mode="wait" initial={false}>
+                  {myList?.includes(+movieId) ? (
+                    <motion.div
+                      key="check"
+                      initial={{ opacity: 0, rotate: -180, scale: 0.3 }}
+                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                      exit={{ opacity: 0, rotate: 180, scale: 0.3 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <Check className="w-5 h-5" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="plus"
+                      initial={{ opacity: 0, rotate: 180, scale: 0.3 }}
+                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                      exit={{ opacity: 0, rotate: -180, scale: 0.3 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <Plus className="w-5 h-5" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                My list
               </Button>
               <Button
                 variant="outline"
-                className="border-gray-400 text-black hover:border-white px-4 py-3"
+                className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
               >
                 <ThumbsUp className="w-6 h-6" />
               </Button>
               <Button
                 variant="outline"
-                className="border-gray-400 text-black hover:border-white px-4 py-3"
+                className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
               >
                 <ThumbsDown className="w-6 h-6" />
               </Button>
               <Button
                 variant="outline"
-                className="border-gray-400 text-black hover:border-white px-4 py-3"
+                className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
               >
                 <Share className="w-6 h-6" />
               </Button>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            {/* <div className="flex flex-wrap gap-2">
               <span className="bg-red-600 px-3 py-1 rounded-full text-sm">
                 Sci-Fi
               </span>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
 
       {/* Details Section */}
       <section className="relative z-10 -mt-32 px-6 pb-20">
-        <div className="max-w-7xl mx-auto">
+        <div className=" mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Main Content */}
             <div className="lg:col-span-2">
               <div className="bg-gray-900 rounded-lg p-8 mb-8">
-                <h2 className="text-2xl font-bold mb-6">About {movie.title}</h2>
+                <h2 className="text-2xl font-bold mb-6">{movie.title}</h2>
 
                 <div className="space-y-4">
                   <div>
                     <span className="text-gray-400 font-medium">
-                      Director:{" "}
+                      Đạo diễn:{" "}
                     </span>
                     <span className="text-white">
                       {movie.directors
@@ -217,22 +281,33 @@ export default function MovieDetailPage() {
                   </div>
 
                   <div>
-                    <span className="text-gray-400 font-medium">Actor: </span>
+                    <span className="text-gray-400 font-medium">
+                      Diễn viên:{" "}
+                    </span>
                     <span className="text-white">
                       {movie.actors.map((actor) => actor.name).join(", ")}
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-gray-400 font-medium">Genre: </span>
+                    <span className="text-gray-400 font-medium">
+                      Thể loại:{" "}
+                    </span>
                     <span className="text-white">
                       {movie.genres.map((genre) => genre.name).join(", ")}
                     </span>
                   </div>
-
+                  <div className="text-gray-400 font-medium">
+                    <span className="text-gray-400">Subtitles:</span>
+                    <span className="text-white ml-2">English, Vietnamese</span>
+                  </div>
+                  <div className="text-gray-400 font-medium">
+                    <span className="text-gray-400">Audio:</span>
+                    <span className="text-white ml-2">English, Vietnamese</span>
+                  </div>
                   <div>
                     <span className="text-gray-400 font-medium">
-                      Release Year:{" "}
+                      Năm phát hành:{" "}
                     </span>
                     <span className="text-white">
                       {new Date(movie.releaseDate).getFullYear()}
@@ -241,7 +316,7 @@ export default function MovieDetailPage() {
 
                   <div>
                     <span className="text-gray-400 font-medium">
-                      Duration:{" "}
+                      Thời gian:{" "}
                     </span>
                     <span className="text-white">{movie.duration}</span>
                   </div>
@@ -298,19 +373,23 @@ export default function MovieDetailPage() {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-gray-900 rounded-lg p-6 mb-8">
-                <h3 className="text-xl font-bold mb-4">More Like This</h3>
+                <h3 className="text-xl font-bold mb-4">Bạn có thể thích</h3>
                 <div className="space-y-4">
                   {similarMovies.map((similarMovie) => (
                     <div
                       key={similarMovie.id}
-                      className="flex space-x-3 cursor-pointer hover:bg-gray-800 p-2 rounded"
+                      className="flex space-x-3 cursor-pointer hover:bg-gray-800 p-2 rounded "
                       onClick={() => router.push(`/movies/${similarMovie.id}`)}
                     >
-                      <img
-                        src={similarMovie.thumbnailUrl || "/placeholder.svg"}
-                        alt={similarMovie.title}
-                        className="w-24 h-36 object-cover rounded"
-                      />
+                      <div className="w-60 h-36 relative">
+                        <Image
+                          fill
+                          src={similarMovie.thumbnailUrl || "/placeholder.svg"}
+                          alt={similarMovie.title}
+                          className=" object-cover rounded-lg"
+                        />
+                      </div>
+
                       <div className="flex-1">
                         <h4 className="font-semibold mb-1">
                           {similarMovie.title}
@@ -324,24 +403,6 @@ export default function MovieDetailPage() {
                       </div>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              <div className="bg-gray-900 rounded-lg p-6">
-                <h3 className="text-xl font-bold mb-4">Details</h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <span className="text-gray-400">Audio:</span>
-                    <span className="text-white ml-2">English, Vietnamese</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">Subtitles:</span>
-                    <span className="text-white ml-2">English, Vietnamese</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">Quality:</span>
-                    <span className="text-white ml-2">4K Ultra HD, HDR</span>
-                  </div>
                 </div>
               </div>
             </div>

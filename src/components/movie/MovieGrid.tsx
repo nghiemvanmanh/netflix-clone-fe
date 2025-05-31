@@ -1,9 +1,15 @@
 // components/MovieCard.tsx
-import { Play, Info, Edit, Trash2, Plus } from "lucide-react";
+import { Play, Info, Edit, Trash2, Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Movie } from "../../../utils/interface";
+import { Movie, Profile, User } from "../../../utils/interface";
 import Image from "next/image";
-
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { notification } from "antd";
+import parseJwt from "../../../utils/token";
+import Cookies from "js-cookie";
+import { fetcher } from "../../../utils/fetcher";
 type Props = {
   movie: Movie;
   isAdmin?: boolean;
@@ -12,8 +18,65 @@ type Props = {
 };
 
 export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
+  const router = useRouter();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [myList, setMyList] = useState<number[] | null>(null);
+  useEffect(() => {
+    const profileData = localStorage.getItem("selectedProfile");
+    const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
+    const parsedProfile = profileData ? JSON.parse(profileData) : null;
+    setProfile(parsedProfile);
+    setUser(parsedCookie);
+  }, []);
+
+  const handleToggleMyList = async (movieId: number) => {
+    const isInList = myList?.includes(movieId);
+    console.log({ myList });
+    try {
+      if (isInList) {
+        // TODO: Remove from My List API call
+        await fetcher.delete(
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists/${movieId}`
+        );
+        notification.warning({
+          message: "Đã xóa khỏi danh sách",
+          description: "Phim đã được xóa khỏi danh sách của bạn.",
+        });
+        setMyList((myList || []).filter((id) => id !== movieId));
+      } else {
+        // TODO: Add to My List API call
+        await fetcher.post(
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists`,
+          {
+            movieId,
+          }
+        );
+        notification.success({
+          message: "Đã thêm vào danh sách",
+          description: "Phim đã được thêm vào danh sách của bạn.",
+        });
+        setMyList([...(myList || []), movieId]);
+      }
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        "Có lỗi xảy ra khi thêm vào danh sách";
+
+      notification.error({
+        message: "Lỗi",
+        description: message,
+      });
+    }
+  };
+  const handlePlayMovie = (movieId: number) => {
+    router.push(`/watch/${movieId}`);
+  };
+  const handleMoreInfo = (movieId: number) => {
+    router.push(`/movies/${movieId}`);
+  };
   return (
-    <div className="group cursor-pointer w-80">
+    <div className="group w-80">
       <div className="relative overflow-hidden rounded-lg mb-3 transform group-hover:scale-105 transition-all duration-300 group-hover:z-10">
         <div className="relative w-full h-48 rounded-lg overflow-hidden">
           <Image
@@ -33,6 +96,10 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
                 size="sm"
                 variant="outline"
                 className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePlayMovie(movie.id);
+                }}
               >
                 <Play className="w-4 h-4" />
               </Button>
@@ -40,6 +107,10 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
                 size="sm"
                 variant="outline"
                 className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMoreInfo(movie.id);
+                }}
               >
                 <Info className="w-4 h-4" />
               </Button>
@@ -47,9 +118,32 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
             <Button
               size="sm"
               variant="outline"
-              className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer"
+              className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer overflow-hidden"
+              onClick={() => handleToggleMyList(movie.id)}
             >
-              <Plus className="w-4 h-4" />
+              <AnimatePresence mode="wait" initial={false}>
+                {myList?.includes(movie.id) ? (
+                  <motion.div
+                    key="check"
+                    initial={{ opacity: 0, rotate: -180, scale: 0.3 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: 180, scale: 0.3 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <Check className="w-4 h-4" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="plus"
+                    initial={{ opacity: 0, rotate: 180, scale: 0.3 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: -180, scale: 0.3 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Button>
           </div>
           <div className="text-xs text-gray-300">
@@ -94,7 +188,13 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
         )}
       </div>
 
-      <div>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          handleMoreInfo(movie.id);
+        }}
+        className="cursor-pointer group-hover:text-white transition-colors"
+      >
         <h3 className="font-semibold text-lg group-hover:text-gray-300 transition-colors">
           {movie.title}
         </h3>

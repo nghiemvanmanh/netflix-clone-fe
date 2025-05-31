@@ -12,6 +12,7 @@ import parseJwt from "../../../utils/token";
 import { notification } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
 import VideoPlayer from "./video-player";
+import { useRouter } from "next/navigation";
 
 interface MovieCardProps {
   movie: Movie;
@@ -26,8 +27,7 @@ export default function MovieCard({
 }: MovieCardProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const router = useRouter();
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
     const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
@@ -38,6 +38,8 @@ export default function MovieCard({
 
   const handleToggleMyList = async (movieId: number) => {
     const isInList = myList?.includes(movieId);
+    console.log("Toggle My List for movieId:", movieId);
+    console.log("Is in list:", isInList);
     console.log({ myList });
     try {
       if (isInList) {
@@ -76,24 +78,26 @@ export default function MovieCard({
     }
   };
 
-  const handlePlayMovie = (movie: Movie) => {
-    setSelectedMovie(movie);
-    setShowVideoPlayer(true);
+  const handlePlayMovie = (movieId: number) => {
+    router.push(`/watch/${movieId}`);
   };
 
-  const handleCloseVideo = () => {
-    setShowVideoPlayer(false);
-    setSelectedMovie(null);
+  const handleMoreInfo = (movieId: number) => {
+    router.push(`/movies/${movieId}`);
   };
   return (
-    <div className="flex-shrink-0 w-80 cursor-pointer group">
+    <div className="flex-shrink-0 w-80  group">
       <div className="relative overflow-hidden rounded-lg transform group-hover:scale-110 transition-all duration-300 group-hover:z-10">
-        <div className="relative w-full h-48 rounded-lg overflow-hidden">
+        <div
+          className="relative w-full h-48 rounded-lg overflow-hidden cursor-pointer"
+          onClick={() => handleMoreInfo(movie.id)}
+        >
           <Image
             fill
             src={movie.thumbnailUrl || "/placeholder.svg"}
             alt={movie.title}
             className="object-cover rounded-lg"
+            priority={false}
           />
         </div>
 
@@ -105,7 +109,10 @@ export default function MovieCard({
                 size="sm"
                 variant="outline"
                 className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer"
-                onClick={() => handlePlayMovie(movie)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePlayMovie(movie.id);
+                }}
               >
                 <Play className="w-4 h-4" />
               </Button>
@@ -113,6 +120,10 @@ export default function MovieCard({
                 size="sm"
                 variant="outline"
                 className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMoreInfo(movie.id);
+                }}
               >
                 <Info className="w-4 h-4" />
               </Button>
@@ -161,7 +172,13 @@ export default function MovieCard({
           </div>
         </div>
       </div>
-      <div>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          handleMoreInfo(movie.id);
+        }}
+        className="cursor-pointer group-hover:text-white transition-colors"
+      >
         <h3 className="mt-4 font-semibold text-lg group-hover:text-gray-300 transition-colors">
           {movie.title}
         </h3>
@@ -171,14 +188,6 @@ export default function MovieCard({
         </p>
         <p className="text-gray-500 text-xs mt-1">{movie.duration}</p>
       </div>
-      {/* Video Player Modal */}
-      {showVideoPlayer && selectedMovie && (
-        <VideoPlayer
-          videoUrl="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-          title={selectedMovie.title}
-          onClose={handleCloseVideo}
-        />
-      )}
     </div>
   );
 }

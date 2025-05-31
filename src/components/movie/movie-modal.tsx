@@ -16,6 +16,7 @@ import { Movie } from "../../../utils/interface";
 import { baseURL, fetcher } from "../../../utils/fetcher";
 import Cookies from "js-cookie";
 import { MultiSelectField } from "./MultiSelectField";
+import { notification } from "antd";
 
 interface MovieModalProps {
   isOpen: boolean;
@@ -137,10 +138,17 @@ export default function MovieModal({
         }
       );
       const savedMovie = await response.json();
+      notification.success({
+        message: "Phim",
+        description: movie ? "Cập nhật thành công" : "Thêm thành công",
+      });
       onSave(savedMovie);
     } catch (error) {
       console.error("Error saving movie:", error);
-      alert("Failed to save movie");
+      notification.error({
+        message: "Lỗi",
+        description: "Đã xảy ra lỗi khi lưu phim",
+      });
     } finally {
       setLoading(false);
     }
