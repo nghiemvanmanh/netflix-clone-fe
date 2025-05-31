@@ -92,7 +92,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
               type="email"
-              placeholder="Email hoặc số điện thoại"
+              placeholder="Email đăng ký"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-zinc-800 text-white placeholder-gray-400 border border-transparent focus:ring-2 focus:ring-red-600 focus:outline-none"
