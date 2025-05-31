@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { User } from "lucide-react";
 import Image from "next/image";
 import { fetcher } from "../../../utils/fetcher";
+
 interface Profile {
   id: number;
   name: string;
@@ -66,9 +67,7 @@ export default function AddProfileModal({
 
       const newProfile = response.data;
       onProfileCreated(newProfile);
-      setName("");
-      setSelectedAvatar(null);
-      setIsKids(false);
+      window.location?.reload(); // Reload to reflect changes in the profile list
     } catch (error) {
       console.error("Error creating profile:", error);
       alert("Failed to create profile");
@@ -160,10 +159,10 @@ export default function AddProfileModal({
             <Button
               type="button"
               variant="outline"
-              className="flex-1 border-gray-600 text-black hover:border-white"
+              className="flex-1 border-gray-600 text-black/80 hover:text-black hover:border-white"
               onClick={onClose}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               type="submit"

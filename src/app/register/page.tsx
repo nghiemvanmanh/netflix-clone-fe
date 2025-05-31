@@ -5,40 +5,48 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
-import Cookies from "js-cookie";
 import { fetcher } from "../../../utils/fetcher";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { notification } from "antd";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
+    if (password !== confirmPassword) {
+      setError("Mật khẩu và xác nhận mật khẩu không khớp");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetcher.post("/auth/login", {
+      await fetcher.post("/users", {
         email,
         password,
+        phoneNumber,
       });
-
-      Cookies.set("accessToken", response.data.accessToken);
-      Cookies.set("refreshToken", response.data.refreshToken);
-      Cookies.set("user", JSON.stringify(response.data.user));
-      router.push("/profiles");
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      notification.success({
+        message: "Đăng ký thành công",
+        description: "Bạn đã đăng ký tài khoản thành công",
+      });
+      // Có thể tự động login hoặc chuyển sang login page
+      router.push("/login");
     } catch (error: any) {
-      console.error("Login error:", error);
-      setError(
-        error.response?.data?.message || "Email hoặc mật khẩu không đúng"
-      );
+      console.error("Register error:", error);
+      setError("Tài khoản đã tồn tại hoặc có lỗi xảy ra");
     } finally {
       setIsLoading(false);
     }
@@ -70,10 +78,10 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Login Form */}
+      {/* Register Form */}
       <div className="relative z-10 flex justify-center items-center min-h-[calc(100vh-64px)] px-4">
         <div className="bg-black bg-opacity-75 p-10 rounded-md w-full max-w-md">
-          <h1 className="text-3xl font-bold mb-8">Đăng nhập</h1>
+          <h1 className="text-3xl font-bold mb-8">Đăng ký</h1>
 
           {error && (
             <div className="bg-orange-500 text-white text-sm p-3 rounded mb-4">
@@ -90,6 +98,16 @@ export default function LoginPage() {
               className="bg-zinc-800 text-white placeholder-gray-400 border border-transparent focus:ring-2 focus:ring-red-600 focus:outline-none"
               required
             />
+
+            <Input
+              type="tel"
+              placeholder="Số điện thoại"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="bg-zinc-800 text-white placeholder-gray-400 border border-transparent focus:ring-2 focus:ring-red-600 focus:outline-none"
+              required
+            />
+
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
@@ -108,28 +126,37 @@ export default function LoginPage() {
               </button>
             </div>
 
+            <div className="relative">
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Xác nhận mật khẩu"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="bg-zinc-800 text-white placeholder-gray-400 border border-transparent pr-10 focus:ring-2 focus:ring-red-600 focus:outline-none"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
             <Button
               type="submit"
               disabled={isLoading}
               className="w-full bg-red-600 hover:bg-red-700 transition-colors font-semibold py-3"
             >
-              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+              {isLoading ? "Đang đăng ký..." : "Đăng ký"}
             </Button>
           </form>
 
-          <div className="flex justify-between items-center mt-4 text-sm text-gray-400">
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" /> Ghi nhớ tôi
-            </label>
-            <a href="#" className="hover:underline">
-              Bạn cần trợ giúp?
-            </a>
-          </div>
-
           <div className="mt-8 text-sm text-gray-400">
-            <span>Bạn mới sử dụng Netflix? </span>
-            <a href="/register" className="text-white hover:underline">
-              Đăng ký ngay
+            <span>Đã có tài khoản? </span>
+            <a href="/login" className="text-white hover:underline">
+              Đăng nhập ngay
             </a>
           </div>
 

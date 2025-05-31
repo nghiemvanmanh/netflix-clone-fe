@@ -173,10 +173,10 @@ export default function ActorModal({
             <Button
               type="button"
               variant="outline"
-              className="flex-1 border-gray-600 text-gray-300 hover:text-white hover:border-white"
+              className="flex-1 border-gray-600 text-black/80 hover:text-black hover:border-white"
               onClick={onClose}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               type="submit"

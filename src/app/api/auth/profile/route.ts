@@ -16,11 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Call your NestJS backend using fetcher (axios)
-    const response = await fetcher.get(`/profiles?id=${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetcher.get(`/profiles?id=${userId}`);
 
     const profiles = response.data;
     return NextResponse.json(profiles);
