@@ -20,7 +20,7 @@ export function FeaturedMovie({ movie }: FeaturedMovieProps) {
     router.push(`/watch/${movieId}`);
   };
   return (
-    <section className="relative h-screen">
+    <section className="relative h-screen -mt-32 sm:mt-0">
       <div className="absolute inset-0">
         <Image
           src={movie.thumbnailUrl || "/placeholder.svg"}
@@ -37,8 +37,10 @@ export function FeaturedMovie({ movie }: FeaturedMovieProps) {
       <div className="relative z-10 flex items-center h-full px-6">
         <div className="max-w-lg">
           <h1 className="text-5xl font-bold mb-4">{movie.title}</h1>
-          <p className="text-lg mb-6 text-gray-200">{movie.description}</p>
-          <div className="flex items-center space-x-4 mb-6">
+          <p className="text-lg mb-6 text-gray-200 hidden sm:block">
+            {movie.description}
+          </p>
+          <div className="flex flex-col sm:block items-start space-y-1 sm:space-y-0 sm:space-x-4 mb-6">
             <span className="bg-gray-800 px-2 py-1 rounded text-sm">
               {movie.duration}
             </span>
@@ -49,6 +51,7 @@ export function FeaturedMovie({ movie }: FeaturedMovieProps) {
               {movie.genres.map((genre) => genre.name).join(", ")}
             </span>
           </div>
+
           <div className="flex space-x-4">
             <Button
               className="bg-white text-black hover:bg-gray-200 px-8 py-3 text-lg font-semibold cursor-pointer"

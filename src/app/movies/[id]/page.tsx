@@ -144,12 +144,12 @@ export default function MovieDetailPage() {
           className="bg-black/50 hover:bg-white/50 text-white rounded-full w-12 h-12 p-0 cursor-pointer"
           onClick={() => router.back()}
         >
-          <ArrowLeft style={{ width: "25px", height: "30px" }} />
+          <ArrowLeft className="w-[25px] h-[30px] sm:w-6 sm:h-6" />
         </Button>
       </div>
 
       {/* Hero Section */}
-      <section className="relative h-screen">
+      <section className="relative h-full pt-32">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -161,7 +161,9 @@ export default function MovieDetailPage() {
 
         <div className="relative z-10 flex items-end h-full px-6 pb-32">
           <div className="max-w-2xl">
-            <h1 className="text-6xl font-bold mb-4">{movie.title}</h1>
+            <h1 className="text-3xl font-bold mb-4 sm:text-6xl">
+              {movie.title}
+            </h1>
 
             <div className="flex items-center space-x-4 mb-6">
               <div className="flex items-center space-x-2">
@@ -188,66 +190,73 @@ export default function MovieDetailPage() {
               </span>
             </div>
 
-            <p className="text-lg mb-8 text-gray-200 leading-relaxed max-w-xl">
+            <p className="text-lg mb-8 text-gray-200 leading-relaxed max-w-xs sm:max-w-xl">
               {movie.description}
             </p>
 
-            <div className="flex space-x-4 mb-8">
-              <Button
-                className="bg-white text-black cursor-pointer hover:bg-gray-200 px-8 py-3 text-lg font-semibold"
-                onClick={handlePlay}
-              >
-                <Play className="w-6 h-6 mr-2" />
-                Play
-              </Button>
-              <Button
-                variant="outline"
-                className="border-gray-400 text-black cursor-pointer hover:border-white"
-                onClick={() => handleToggleMyList(+movieId)}
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  {myList?.includes(+movieId) ? (
-                    <motion.div
-                      key="check"
-                      initial={{ opacity: 0, rotate: -180, scale: 0.3 }}
-                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                      exit={{ opacity: 0, rotate: 180, scale: 0.3 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                    >
-                      <Check className="w-5 h-5" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="plus"
-                      initial={{ opacity: 0, rotate: 180, scale: 0.3 }}
-                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                      exit={{ opacity: 0, rotate: -180, scale: 0.3 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                    >
-                      <Plus className="w-5 h-5" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                My list
-              </Button>
-              <Button
-                variant="outline"
-                className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
-              >
-                <ThumbsUp className="w-6 h-6" />
-              </Button>
-              <Button
-                variant="outline"
-                className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
-              >
-                <ThumbsDown className="w-6 h-6" />
-              </Button>
-              <Button
-                variant="outline"
-                className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
-              >
-                <Share className="w-6 h-6" />
-              </Button>
+            <div className="sm:flex sm:flex-row space-y-4 mb-8  ">
+              {/* Row 1: Play & My List */}
+              <div className="flex space-x-4 mb-4 sm:mb-0">
+                <Button
+                  className="bg-white text-black cursor-pointer hover:bg-gray-200 px-8 py-3 text-lg font-semibold"
+                  onClick={handlePlay}
+                >
+                  <Play className="w-6 h-6 mr-2" />
+                  Play
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-gray-400 text-black cursor-pointer hover:border-white"
+                  onClick={() => handleToggleMyList(+movieId)}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {myList?.includes(+movieId) ? (
+                      <motion.div
+                        key="check"
+                        initial={{ opacity: 0, rotate: -180, scale: 0.3 }}
+                        animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                        exit={{ opacity: 0, rotate: 180, scale: 0.3 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                      >
+                        <Check className="w-5 h-5" />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="plus"
+                        initial={{ opacity: 0, rotate: 180, scale: 0.3 }}
+                        animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                        exit={{ opacity: 0, rotate: -180, scale: 0.3 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                      >
+                        <Plus className="w-5 h-5" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  My list
+                </Button>
+              </div>
+
+              {/* Row 2: ThumbsUp, ThumbsDown, Share */}
+              <div className="flex space-x-4 ml-0 sm:ml-4">
+                <Button
+                  variant="outline"
+                  className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
+                >
+                  <ThumbsUp className="w-6 h-6" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
+                >
+                  <ThumbsDown className="w-6 h-6" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
+                >
+                  <Share className="w-6 h-6" />
+                </Button>
+              </div>
             </div>
 
             {/* <div className="flex flex-wrap gap-2">
@@ -378,15 +387,15 @@ export default function MovieDetailPage() {
                   {similarMovies.map((similarMovie) => (
                     <div
                       key={similarMovie.id}
-                      className="flex space-x-3 cursor-pointer hover:bg-gray-800 p-2 rounded "
+                      className="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0 cursor-pointer hover:bg-gray-800 p-2 rounded"
                       onClick={() => router.push(`/movies/${similarMovie.id}`)}
                     >
-                      <div className="w-60 h-36 relative">
+                      <div className="w-full sm:w-60 h-36 relative">
                         <Image
                           fill
                           src={similarMovie.thumbnailUrl || "/placeholder.svg"}
                           alt={similarMovie.title}
-                          className=" object-cover rounded-lg"
+                          className="object-cover rounded-lg"
                         />
                       </div>
 

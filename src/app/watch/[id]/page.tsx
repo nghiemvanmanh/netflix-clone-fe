@@ -143,15 +143,15 @@ export default function WatchPage() {
       <div className="fixed top-6 left-6 z-40 mt-10">
         <Button
           variant="ghost"
-          className="bg-black/50  text-white rounded-full w-12 h-12 p-0 cursor-pointer"
+          className="bg-black/50 hover:bg-white/50 text-white rounded-full w-12 h-12 p-0 cursor-pointer"
           onClick={() => router.back()}
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft className="w-[25px] h-[30px] sm:w-6 sm:h-6" />
         </Button>
       </div>
 
       {/* Video Player Section */}
-      <div className="pt-20 px-6 pb-10">
+      <div className="pt-40 px-6 pb-10 sm:pt-20">
         <div className="max-w-5xl mx-auto">
           <div
             ref={videoContainerRef}
@@ -179,7 +179,7 @@ export default function WatchPage() {
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
                 <span className="text-lg">8.5</span>
               </div>
-              <span className="bg-gray-800 px-2 py-1 rounded text-sm">
+              <span className="bg-gray-800 px-2 py-1 rounded text-sm hidden sm:inline-block">
                 {movie.movieTypes.map((type) => type.name).join(", ")}
               </span>
               <span className="text-gray-300">
@@ -191,7 +191,7 @@ export default function WatchPage() {
               </span>
             </div>
 
-            <div className="flex space-x-3 mb-6">
+            <div className="flex space-x-2 sm:space-x-4 mb-6">
               <Button
                 variant="outline"
                 className="border-gray-400 text-black cursor-pointer hover:border-white"
@@ -220,28 +220,28 @@ export default function WatchPage() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                My list
+                <span className="hidden sm:inline"> My List</span>
               </Button>
               <Button
                 variant="outline"
                 className="border-gray-400 text-black cursor-pointer hover:border-white"
               >
                 <ThumbsUp className="w-5 h-5 mr-2" />
-                Like
+                <span className="hidden sm:inline"> Like</span>
               </Button>
               <Button
                 variant="outline"
                 className="border-gray-400 text-black cursor-pointer hover:border-white"
               >
                 <ThumbsDown className="w-5 h-5 mr-2" />
-                Dislike
+                <span className="hidden sm:inline"> Dislike</span>
               </Button>
               <Button
                 variant="outline"
                 className="border-gray-400 text-black cursor-pointer hover:border-white"
               >
                 <Share className="w-5 h-5 mr-2" />
-                Share
+                <span className="hidden sm:inline">Share</span>
               </Button>
             </div>
 
@@ -300,7 +300,7 @@ export default function WatchPage() {
           {/* Similar Movies Section */}
           <div>
             <h2 className="text-2xl font-bold mb-6">Có thể bạn sẽ thích</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {similarMovies.map((similarMovie) => (
                 <div
                   key={similarMovie.id}

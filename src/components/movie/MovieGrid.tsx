@@ -76,9 +76,12 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
     router.push(`/movies/${movieId}`);
   };
   return (
-    <div className="group w-80">
+    <div className="flex-shrink-0 w-full sm:w-80 group transition-all duration-300">
       <div className="relative overflow-hidden rounded-lg mb-3 transform group-hover:scale-105 transition-all duration-300 group-hover:z-10">
-        <div className="relative w-full h-48 rounded-lg overflow-hidden">
+        <div
+          className="relative w-full h-48 rounded-lg overflow-hidden"
+          onClick={() => handleMoreInfo(movie.id)}
+        >
           <Image
             fill
             src={movie.thumbnailUrl || "/placeholder.svg"}

@@ -113,6 +113,13 @@ export default function HomePage() {
               spaceBetween={10}
               slidesPerView={5}
               loop={true}
+              breakpoints={{
+                320: { slidesPerView: 1 },
+                480: { slidesPerView: 2 },
+                768: { slidesPerView: 3 },
+                1024: { slidesPerView: 4 },
+                1280: { slidesPerView: 5 },
+              }}
             >
               {movies.map((movie) => (
                 <SwiperSlide key={movie.id}>
@@ -139,6 +146,13 @@ export default function HomePage() {
               spaceBetween={10}
               slidesPerView={5}
               loop={true}
+              breakpoints={{
+                320: { slidesPerView: 1 },
+                480: { slidesPerView: 2 },
+                768: { slidesPerView: 3 },
+                1024: { slidesPerView: 4 },
+                1280: { slidesPerView: 5 },
+              }}
             >
               {movies
                 .slice()
