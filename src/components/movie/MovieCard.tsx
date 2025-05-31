@@ -86,7 +86,7 @@ export default function MovieCard({
     router.push(`/movies/${movieId}`);
   };
   return (
-    <div className="flex-shrink-0 w-80  group">
+    <div className="flex-shrink-0 w-full sm:w-80 group transition-all duration-300">
       <div className="relative overflow-hidden rounded-lg transform group-hover:scale-110 transition-all duration-300 group-hover:z-10">
         <div
           className="relative w-full h-48 rounded-lg overflow-hidden cursor-pointer"
@@ -101,8 +101,14 @@ export default function MovieCard({
           />
         </div>
 
+        {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="absolute bottom-0 left-0 right-0 p-3 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+
+        {/* Button container with higher z-index */}
+        <div
+          className="absolute bottom-0 left-0 right-0 p-3 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-10 cursor-pointer"
+          onClick={() => handleMoreInfo(movie.id)}
+        >
           <div className="flex items-center justify-between mb-2">
             <div className="flex space-x-2">
               <Button
@@ -132,7 +138,10 @@ export default function MovieCard({
               size="sm"
               variant="outline"
               className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer overflow-hidden"
-              onClick={() => handleToggleMyList(movie.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleMyList(movie.id);
+              }}
             >
               <AnimatePresence mode="wait" initial={false}>
                 {myList?.includes(movie.id) ? (
@@ -159,6 +168,7 @@ export default function MovieCard({
               </AnimatePresence>
             </Button>
           </div>
+          {/* rest content */}
           <div className="text-xs text-gray-300">
             <div className="flex items-center space-x-2 mb-1">
               <span className="bg-gray-800 px-1 py-0.5 rounded text-xs">
@@ -172,6 +182,7 @@ export default function MovieCard({
           </div>
         </div>
       </div>
+
       <div
         onClick={(e) => {
           e.stopPropagation();

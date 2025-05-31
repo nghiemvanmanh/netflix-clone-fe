@@ -149,7 +149,7 @@ export default function MovieDetailPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative h-screen">
+      <section className="relative h-full pt-32">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{

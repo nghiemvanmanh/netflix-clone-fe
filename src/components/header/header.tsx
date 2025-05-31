@@ -26,7 +26,9 @@ import MovieCard from "../movie/MovieCard";
 import { removeAccentsAndSpaces } from "@/constants/common";
 import match from "@/helpers/match";
 import parseJwt from "../../../utils/token";
-
+import Link from "next/link";
+import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import { Drawer, Menu } from "antd";
 export default function Header() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -141,6 +143,18 @@ export default function Header() {
       setSearchResults([]);
     }
   };
+
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
+  const menuItems = [
+    { key: "home", label: <Link href="/home">Trang chủ</Link> },
+    { key: "tv-shows", label: <Link href="#">TV Shows</Link> },
+    { key: "movies", label: <Link href="/movies">Movies</Link> },
+    { key: "new-popular", label: <Link href="#">Mới & Phổ biến</Link> },
+    { key: "my-lists", label: <Link href="/my-lists">Danh sách của tôi</Link> },
+    { key: "actors", label: <Link href="/actors">Diễn viên</Link> },
+    { key: "directors", label: <Link href="/directors">Đạo diễn</Link> },
+  ];
   return (
     <>
       <header className="fixed top-0 w-full z-50 bg-gradient-to-b from-black to-transparent">
@@ -149,43 +163,43 @@ export default function Header() {
             <h1 className="text-2xl font-bold text-red-600">
               <a href="/home">NETFLIX</a>
             </h1>
+            {/* Menu lớn (desktop) */}
             <nav className="hidden md:flex space-x-6">
-              <a href="/home" className="hover:text-gray-300 transition-colors">
-                Trang chủ
-              </a>
-              <a href="#" className="hover:text-gray-300 transition-colors">
-                TV Shows
-              </a>
-              <a
-                href="/movies"
-                className="hover:text-gray-300 transition-colors"
-              >
-                Movies
-              </a>
-              <a href="#" className="hover:text-gray-300 transition-colors">
-                Mới & Phổ biến
-              </a>
-              <a
-                href="/my-lists"
-                className="hover:text-gray-300 transition-colors"
-              >
-                Danh sách của tôi
-              </a>
-              <a
-                href="/actors"
-                className="hover:text-gray-300 transition-colors"
-              >
-                Diễn viên
-              </a>
-              <a
-                href="/directors"
-                className="hover:text-gray-300 transition-colors"
-              >
-                Đạo diễn
-              </a>
+              {menuItems.map(({ key, label }) => (
+                <div
+                  key={key}
+                  className="hover:text-gray-300 transition-colors cursor-pointer"
+                >
+                  {label}
+                </div>
+              ))}
             </nav>
-          </div>
 
+            {/* Nút menu nhỏ (mobile) */}
+            <div className="md:hidden">
+              <MenuOutlined
+                className="text-white text-2xl cursor-pointer"
+                onClick={() => setDrawerVisible(true)}
+              />
+            </div>
+          </div>
+          {/* Drawer menu cho mobile */}
+          <Drawer
+            title="Menu"
+            placement="right"
+            onClose={() => setDrawerVisible(false)}
+            visible={drawerVisible}
+            closeIcon={<CloseOutlined style={{ color: "white" }} />}
+            bodyStyle={{ backgroundColor: "#000" }}
+            headerStyle={{ backgroundColor: "#000", color: "white" }}
+          >
+            <Menu
+              mode="inline"
+              theme="dark"
+              items={menuItems}
+              onClick={() => setDrawerVisible(false)}
+            />
+          </Drawer>
           <div className="flex items-center space-x-4">
             <Search
               className="w-5 h-5 cursor-pointer hover:text-gray-300"

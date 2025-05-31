@@ -114,9 +114,9 @@ export default function MoviesPage() {
             )}
           </div>
           {/* Movies Grid */}
-          <div className="flex flex-wrap -mx-16">
+          <div className="sm:-mx-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             {movies.map((movie) => (
-              <div key={movie.id} className="w-1/2 sm:w-1/3 md:w-1/4 px-4 mb-6">
+              <div key={movie.id} className="w-full">
                 <MovieGrid
                   movie={movie}
                   isAdmin={user?.isAdmin}
