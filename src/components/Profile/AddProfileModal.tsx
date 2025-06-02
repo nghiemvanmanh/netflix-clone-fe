@@ -16,19 +16,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { User } from "lucide-react";
 import Image from "next/image";
 import { fetcher } from "../../../utils/fetcher";
-
-interface Profile {
-  id: number;
-  name: string;
-  avatarUrl: string | null;
-  isKids: boolean;
-}
+import { Profile } from "../../../utils/interface";
 
 interface AddProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onProfileCreated: (profile: Profile) => void;
-  userId: number;
+  userId: string;
 }
 
 const avatarOptions = [

@@ -8,6 +8,11 @@ export default function HomePage() {
 
   useEffect(() => {
     // Redirect to demo page instead of login
+    const profile = localStorage.getItem("profile");
+    if (profile) {
+      router.push("/home");
+      return;
+    }
     router.push("/login");
   }, [router]);
 

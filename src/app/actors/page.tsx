@@ -53,7 +53,7 @@ export default function ActorsPage() {
     setShowModal(true);
   };
 
-  const handleDeleteActor = async (actorId: number) => {
+  const handleDeleteActor = async (actorId: string) => {
     if (!confirm("Are you sure you want to delete this actor?")) return;
 
     try {
@@ -74,7 +74,7 @@ export default function ActorsPage() {
       );
     } else {
       // Add new actor
-      setActors([...actors, { ...savedActor, id: Date.now() }]);
+      setActors([...actors, { ...savedActor, id: savedActor.id }]);
     }
     setShowModal(false);
   };

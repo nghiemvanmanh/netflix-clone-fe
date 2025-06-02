@@ -15,7 +15,7 @@ export default function MyListsPage() {
 
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const [myList, setMyList] = useState<number[]>([]);
+  const [myList, setMyList] = useState<string[]>([]);
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
     const cookie = Cookies.get("accessToken");
@@ -41,7 +41,7 @@ export default function MyListsPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <Header  />
+      <Header />
 
       {/* Main Content */}
       <main className="pt-20 px-6 pb-20">

@@ -27,24 +27,22 @@ fetcher.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refreshToken = Cookies.get("refreshToken");
-        if (!refreshToken) {
-          throw new Error("Không có refresh token");
+        if (refreshToken) {
+          const response = await axios.post(
+            `${baseURL}/auth/refresh`,
+            { refreshToken },
+            {
+              withCredentials: true,
+            }
+          );
+          const { accessToken } = response.data;
+          Cookies.set("accessToken", accessToken);
+          originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
+          return fetcher(originalRequest);
         }
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/${process.env.NEXT_PUBLIC_PREFIX}/auth/refresh`,
-          { refreshToken },
-          {
-            withCredentials: true,
-          }
-        );
-        const { accessToken } = response.data;
-        Cookies.set("accessToken", accessToken);
-        originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
-        return fetcher(originalRequest);
       } catch (refreshError) {
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
-        window.location.href = "/";
         return Promise.reject(refreshError);
       }
     }

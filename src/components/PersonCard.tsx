@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 
 type Person = {
-  id: number;
+  id: string;
   name: string;
   description: string;
   photoUrl?: string;
@@ -14,7 +14,7 @@ type Props = {
   person: Person;
   isAdmin?: boolean;
   onEdit?: (person: Person) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
 };
 
 const PersonCard = ({ person, isAdmin, onEdit, onDelete }: Props) => {

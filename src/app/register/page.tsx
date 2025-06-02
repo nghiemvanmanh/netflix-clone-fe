@@ -46,7 +46,10 @@ export default function RegisterPage() {
       router.push("/login");
     } catch (error: any) {
       console.error("Register error:", error);
-      setError("Tài khoản đã tồn tại hoặc có lỗi xảy ra");
+      setError(
+        error.response.data.message.join(", ") ||
+          "Có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại sau."
+      );
     } finally {
       setIsLoading(false);
     }

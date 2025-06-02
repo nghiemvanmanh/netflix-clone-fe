@@ -36,12 +36,13 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [myList, setMyList] = useState<number[]>([]);
+  const [myList, setMyList] = useState<string[]>([]);
   useEffect(() => {
     const fetchData = async () => {
       const profileData = localStorage.getItem("selectedProfile");
       const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
       const parsedProfile = profileData ? JSON.parse(profileData) : null;
+
       if (!profileData) {
         router.push("/profiles");
         return;

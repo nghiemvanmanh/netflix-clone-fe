@@ -14,14 +14,14 @@ type Props = {
   movie: Movie;
   isAdmin?: boolean;
   onEdit?: (movie: Movie) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
 };
 
 export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [myList, setMyList] = useState<number[] | null>(null);
+  const [myList, setMyList] = useState<string[] | null>(null);
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
     const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
@@ -30,7 +30,7 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
     setUser(parsedCookie);
   }, []);
 
-  const handleToggleMyList = async (movieId: number) => {
+  const handleToggleMyList = async (movieId: string) => {
     const isInList = myList?.includes(movieId);
     console.log({ myList });
     try {
@@ -69,10 +69,10 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
       });
     }
   };
-  const handlePlayMovie = (movieId: number) => {
+  const handlePlayMovie = (movieId: string) => {
     router.push(`/watch/${movieId}`);
   };
-  const handleMoreInfo = (movieId: number) => {
+  const handleMoreInfo = (movieId: string) => {
     router.push(`/movies/${movieId}`);
   };
   return (

@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 
 interface SelectItemType {
-  value: number;
+  value: string;
   label: string;
 }
 
@@ -35,24 +35,22 @@ export function MultiSelectField({
   badgeColor,
 }: MultiSelectFieldProps) {
   const handleMultiSelect = (value: string) => {
-    const numericValue = Number.parseInt(value, 10);
-    if (isNaN(numericValue)) return; // Kiểm tra nếu value không phải số hợp lệ
-    const currentValues = formData[field] as number[];
-    if (currentValues.includes(numericValue)) {
+    const currentValues = formData[field] as string[];
+    if (currentValues.includes(value)) {
       setFormData({
         ...formData,
-        [field]: currentValues.filter((id) => id !== numericValue),
+        [field]: currentValues.filter((id) => id !== value),
       });
     } else {
       setFormData({
         ...formData,
-        [field]: [...currentValues, numericValue],
+        [field]: [...currentValues, value],
       });
     }
   };
 
-  const removeSelection = (value: number) => {
-    const currentValues = formData[field] as number[];
+  const removeSelection = (value: string) => {
+    const currentValues = formData[field] as string[];
     setFormData({
       ...formData,
       [field]: currentValues.filter((id) => id !== value),
@@ -79,7 +77,7 @@ export function MultiSelectField({
         </SelectContent>
       </Select>
       <div className="flex flex-wrap gap-2 mt-2">
-        {formData[field].map((itemId: number) => {
+        {formData[field].map((itemId: string) => {
           const item = items.find((i) => i.value === itemId);
           return item ? (
             <Badge

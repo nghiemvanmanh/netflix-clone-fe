@@ -35,7 +35,6 @@ export default function LoginPage() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error("Login error:", error);
       setError(
         error.response?.data?.message || "Email hoặc mật khẩu không đúng"
       );

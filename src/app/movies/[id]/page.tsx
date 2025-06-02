@@ -24,13 +24,13 @@ import { AnimatePresence, motion } from "framer-motion";
 export default function MovieDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const movieId = params.id as number | string;
+  const movieId = params.id as string;
 
   const [movie, setMovie] = useState<Movie | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [myList, setMyList] = useState<number[]>([]);
+  const [myList, setMyList] = useState<string[]>([]);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function MovieDetailPage() {
     fetchMyList();
     fetchMovieDetails();
   }, [movieId, router]);
-  const handleToggleMyList = async (movieId: number) => {
+  const handleToggleMyList = async (movieId: string) => {
     const isInList = myList?.includes(movieId);
     try {
       if (isInList) {
@@ -207,10 +207,10 @@ export default function MovieDetailPage() {
                 <Button
                   variant="outline"
                   className="border-gray-400 text-black cursor-pointer hover:border-white"
-                  onClick={() => handleToggleMyList(+movieId)}
+                  onClick={() => handleToggleMyList(movieId)}
                 >
                   <AnimatePresence mode="wait" initial={false}>
-                    {myList?.includes(+movieId) ? (
+                    {myList?.includes(movieId) ? (
                       <motion.div
                         key="check"
                         initial={{ opacity: 0, rotate: -180, scale: 0.3 }}

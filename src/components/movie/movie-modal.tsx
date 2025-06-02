@@ -26,7 +26,7 @@ interface MovieModalProps {
 }
 
 interface SelectItemType {
-  value: number;
+  value: string;
   label: string;
 }
 
@@ -43,10 +43,10 @@ export default function MovieModal({
     videoUrl: "",
     duration: "",
     releaseDate: "",
-    genreIds: [] as number[],
-    movieTypeIds: [] as number[],
-    actorIds: [] as number[],
-    directorIds: [] as number[],
+    genreIds: [] as string[],
+    movieTypeIds: [] as string[],
+    actorIds: [] as string[],
+    directorIds: [] as string[],
   });
   const [loading, setLoading] = useState(false);
   const [genres, setGenres] = useState<SelectItemType[]>([]);

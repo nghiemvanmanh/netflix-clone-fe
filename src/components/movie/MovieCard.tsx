@@ -16,8 +16,8 @@ import { useRouter } from "next/navigation";
 
 interface MovieCardProps {
   movie: Movie;
-  myList: number[] | null;
-  setMyList: React.Dispatch<React.SetStateAction<number[]>>;
+  myList: string[] | null;
+  setMyList: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export default function MovieCard({
@@ -36,7 +36,7 @@ export default function MovieCard({
     setUser(parsedCookie);
   }, []);
 
-  const handleToggleMyList = async (movieId: number) => {
+  const handleToggleMyList = async (movieId: string) => {
     const isInList = myList?.includes(movieId);
     try {
       if (isInList) {
@@ -75,11 +75,11 @@ export default function MovieCard({
     }
   };
 
-  const handlePlayMovie = (movieId: number) => {
+  const handlePlayMovie = (movieId: string) => {
     router.push(`/watch/${movieId}`);
   };
 
-  const handleMoreInfo = (movieId: number) => {
+  const handleMoreInfo = (movieId: string) => {
     router.push(`/movies/${movieId}`);
   };
   return (
@@ -175,7 +175,7 @@ export default function MovieCard({
               <span>{new Date(movie.releaseDate).getFullYear()}</span>
             </div>
             <div className="text-gray-400">
-              {movie.genres.map((genre) => genre.name).join(", ")}
+              {movie.genres?.map((genre) => genre.name).join(", ")}
             </div>
           </div>
         </div>

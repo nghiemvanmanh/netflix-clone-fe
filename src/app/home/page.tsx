@@ -19,7 +19,7 @@ export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [myList, setMyList] = useState<number[]>([]);
+  const [myList, setMyList] = useState<string[]>([]);
 
   const router = useRouter();
 

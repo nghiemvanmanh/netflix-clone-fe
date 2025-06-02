@@ -52,7 +52,7 @@ export default function MoviesPage() {
     setShowModal(true);
   };
 
-  const handleDeleteMovie = async (movieId: number) => {
+  const handleDeleteMovie = async (movieId: string) => {
     if (!confirm("Are you sure you want to delete this movie?")) return;
 
     try {

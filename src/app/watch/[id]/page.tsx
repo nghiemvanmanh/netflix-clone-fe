@@ -5,8 +5,6 @@ import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
-  Maximize,
-  Minimize,
   ThumbsUp,
   ThumbsDown,
   Plus,
@@ -31,7 +29,7 @@ export default function WatchPage() {
   const [loading, setLoading] = useState(true);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   const videoContainerRef = useRef<HTMLDivElement>(null);
-  const [myList, setMyList] = useState<number[]>([]);
+  const [myList, setMyList] = useState<string[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
@@ -52,7 +50,7 @@ export default function WatchPage() {
     fetchMyList();
     fetchMovieDetails();
   }, [movieId, router]);
-  const handleToggleMyList = async (movieId: number) => {
+  const handleToggleMyList = async (movieId: string) => {
     const isInList = myList?.includes(movieId);
     try {
       if (isInList) {
@@ -195,10 +193,10 @@ export default function WatchPage() {
               <Button
                 variant="outline"
                 className="border-gray-400 text-black cursor-pointer hover:border-white"
-                onClick={() => handleToggleMyList(+movieId)}
+                onClick={() => handleToggleMyList(movieId)}
               >
                 <AnimatePresence mode="wait" initial={false}>
-                  {myList?.includes(+movieId) ? (
+                  {myList?.includes(movieId) ? (
                     <motion.div
                       key="check"
                       initial={{ opacity: 0, rotate: -180, scale: 0.3 }}

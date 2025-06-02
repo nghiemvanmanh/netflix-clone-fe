@@ -16,21 +16,10 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Trash2, AlertTriangle } from "lucide-react";
 import { notification } from "antd";
-interface Profile {
-  id: number;
-  name: string;
-  avatarUrl: string | null;
-  isKids: boolean;
-}
-
-interface UserProfile {
-  id: number;
-  email: string;
-  profiles: Profile[];
-}
+import { Profile, User } from "../../../utils/interface";
 
 export default function ProfilesPage() {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -43,7 +32,7 @@ export default function ProfilesPage() {
     show: false,
     profile: null,
   });
-  const [deletingProfileId, setDeletingProfileId] = useState<number | null>(
+  const [deletingProfileId, setDeletingProfileId] = useState<string | null>(
     null
   );
   useEffect(() => {
@@ -212,7 +201,7 @@ export default function ProfilesPage() {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onProfileCreated={handleProfileCreated}
-        userId={user?.id || 0}
+        userId={user?.id || ""}
       />
       {/* Delete Confirmation Dialog */}
       <Dialog

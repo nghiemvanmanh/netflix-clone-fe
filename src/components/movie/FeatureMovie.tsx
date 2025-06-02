@@ -13,10 +13,10 @@ interface FeaturedMovieProps {
 export function FeaturedMovie({ movie }: FeaturedMovieProps) {
   const router = useRouter();
 
-  const handleMoreInfo = (movieId: number) => {
+  const handleMoreInfo = (movieId: string) => {
     router.push(`/movies/${movieId}`);
   };
-  const handlePlayMovie = (movieId: number) => {
+  const handlePlayMovie = (movieId: string) => {
     router.push(`/watch/${movieId}`);
   };
   return (

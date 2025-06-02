@@ -54,7 +54,7 @@ export default function DirectorsPage() {
     setShowModal(true);
   };
 
-  const handleDeleteDirector = async (directorId: number) => {
+  const handleDeleteDirector = async (directorId: string) => {
     if (!confirm("Are you sure you want to delete this director?")) return;
 
     try {
