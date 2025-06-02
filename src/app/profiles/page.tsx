@@ -17,6 +17,7 @@ import {
 import { Plus, Trash2, AlertTriangle } from "lucide-react";
 import { notification } from "antd";
 import { Profile, User } from "../../../utils/interface";
+import Loading from "@/components/ui/loading";
 
 export default function ProfilesPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -102,11 +103,7 @@ export default function ProfilesPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

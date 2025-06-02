@@ -10,7 +10,7 @@ import { Director, User } from "../../../utils/interface";
 import { fetcher } from "../../../utils/fetcher";
 import Header from "@/components/header/header";
 import PersonCard from "@/components/PersonCard";
-
+import Loading from "@/components/ui/loading";
 export default function DirectorsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [directors, setDirectors] = useState<Director[]>([]);
@@ -83,11 +83,7 @@ export default function DirectorsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

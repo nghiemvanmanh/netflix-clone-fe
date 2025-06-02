@@ -10,7 +10,7 @@ import { Movie, User } from "../../../utils/interface";
 import { fetcher } from "../../../utils/fetcher";
 import Header from "@/components/header/header";
 import MovieGrid from "@/components/movie/MovieGrid";
-
+import Loading from "@/components/ui/loading";
 export default function MoviesPage() {
   const [user, setUser] = useState<User | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -79,11 +79,7 @@ export default function MoviesPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

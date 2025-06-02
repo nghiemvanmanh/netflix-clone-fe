@@ -10,10 +10,10 @@ import { FeaturedMovie } from "@/components/movie/FeatureMovie";
 import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-
 import "swiper/css";
 import parseJwt from "../../../utils/token";
 import Cookies from "js-cookie";
+import Loading from "@/components/ui/loading";
 export default function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -70,11 +70,7 @@ export default function HomePage() {
   }, []);
 
   if (!profile) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

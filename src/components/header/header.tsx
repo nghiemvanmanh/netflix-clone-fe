@@ -29,6 +29,8 @@ import parseJwt from "../../../utils/token";
 import Link from "next/link";
 import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 import { Drawer, Menu } from "antd";
+import NotificationCenter from "../notification/NotificationCenter";
+import { useNotifications } from "@/contexts/use_notification-context";
 export default function Header() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -37,6 +39,14 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [myList, setMyList] = useState<string[]>([]);
+  const {
+    notifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    deleteAll,
+  } = useNotifications();
+
   useEffect(() => {
     const fetchData = async () => {
       const profileData = localStorage.getItem("selectedProfile");
@@ -206,7 +216,13 @@ export default function Header() {
               className="w-5 h-5 cursor-pointer hover:text-gray-300"
               onClick={handleSearchToggle}
             />
-            <Bell className="w-5 h-5 cursor-pointer hover:text-gray-300" />
+            <NotificationCenter
+              notifications={notifications}
+              onDeleteAll={deleteAll}
+              onMarkAsRead={markAsRead}
+              onMarkAllAsRead={markAllAsRead}
+              onDeleteNotification={deleteNotification}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center space-x-2 p-0 h-auto bg-transparent border-none focus:outline-none cursor-pointer">

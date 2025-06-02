@@ -10,9 +10,8 @@ import Cookies from "js-cookie";
 import { fetcher } from "../../../utils/fetcher";
 import Header from "@/components/header/header";
 import { Actor, User } from "../../../utils/interface";
-import Image from "next/image";
 import PersonCard from "@/components/PersonCard";
-
+import Loading from "@/components/ui/loading";
 export default function ActorsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -80,11 +79,7 @@ export default function ActorsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

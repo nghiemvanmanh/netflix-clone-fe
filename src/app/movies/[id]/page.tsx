@@ -21,6 +21,8 @@ import parseJwt from "../../../../utils/token";
 import Cookies from "js-cookie";
 import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
+import Loading from "@/components/ui/loading";
+import { useNotifications } from "@/contexts/use_notification-context";
 export default function MovieDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -32,7 +34,7 @@ export default function MovieDetailPage() {
   const [loading, setLoading] = useState(true);
   const [myList, setMyList] = useState<string[]>([]);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
-
+  const { notifyAddToMyList, notifyRemoveFromMyList } = useNotifications();
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
     const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
@@ -87,6 +89,11 @@ export default function MovieDetailPage() {
           message: "Đã xóa khỏi danh sách",
           description: "Phim đã được xóa khỏi danh sách của bạn.",
         });
+        await notifyRemoveFromMyList(
+          movie!.id,
+          movie!.title,
+          movie!.thumbnailUrl
+        );
         setMyList((myList || []).filter((id) => id !== movieId));
       } else {
         // TODO: Add to My List API call
@@ -100,6 +107,7 @@ export default function MovieDetailPage() {
           message: "Đã thêm vào danh sách",
           description: "Phim đã được thêm vào danh sách của bạn.",
         });
+        await notifyAddToMyList(movie!.id, movie!.title, movie!.thumbnailUrl);
         setMyList([...(myList || []), movieId]);
       }
     } catch (error: any) {
@@ -118,11 +126,7 @@ export default function MovieDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!movie) {

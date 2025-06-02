@@ -20,19 +20,21 @@ import parseJwt from "../../../../utils/token";
 import Cookies from "js-cookie";
 import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
+import Loading from "@/components/ui/loading";
+import { useNotifications } from "@/contexts/use_notification-context";
 export default function WatchPage() {
   const router = useRouter();
   const params = useParams();
   const movieId = params.id as string;
 
-  const [movie, setMovie] = useState<Movie | null>(null);
+  const [movie, setMovie] = useState<Movie>();
   const [loading, setLoading] = useState(true);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [myList, setMyList] = useState<string[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
-
+  const { notifyAddToMyList, notifyRemoveFromMyList } = useNotifications();
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
     const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
@@ -50,44 +52,7 @@ export default function WatchPage() {
     fetchMyList();
     fetchMovieDetails();
   }, [movieId, router]);
-  const handleToggleMyList = async (movieId: string) => {
-    const isInList = myList?.includes(movieId);
-    try {
-      if (isInList) {
-        // TODO: Remove from My List API call
-        await fetcher.delete(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists/${movieId}`
-        );
-        notification.warning({
-          message: "Đã xóa khỏi danh sách",
-          description: "Phim đã được xóa khỏi danh sách của bạn.",
-        });
-        setMyList((myList || []).filter((id) => id !== movieId));
-      } else {
-        // TODO: Add to My List API call
-        await fetcher.post(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists`,
-          {
-            movieId,
-          }
-        );
-        notification.success({
-          message: "Đã thêm vào danh sách",
-          description: "Phim đã được thêm vào danh sách của bạn.",
-        });
-        setMyList([...(myList || []), movieId]);
-      }
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        "Có lỗi xảy ra khi thêm vào danh sách";
 
-      notification.warning({
-        message: "Thông báo",
-        description: message,
-      });
-    }
-  };
   const fetchMovieDetails = async () => {
     try {
       // Simulate API delay
@@ -97,7 +62,6 @@ export default function WatchPage() {
       const response = await fetcher.get(`/movies/${movieId}`);
       const allMovies = await fetcher.get("/movies");
       setMovie(response.data);
-
       const similar = allMovies.data
         .filter(
           (m: Movie) =>
@@ -118,12 +82,52 @@ export default function WatchPage() {
     }
   };
 
+  const handleToggleMyList = async (movieId: string) => {
+    const isInList = myList?.includes(movieId);
+    try {
+      if (isInList) {
+        // TODO: Remove from My List API call
+        await fetcher.delete(
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists/${movieId}`
+        );
+        notification.warning({
+          message: "Đã xóa khỏi danh sách",
+          description: "Phim đã được xóa khỏi danh sách của bạn.",
+        });
+        await notifyRemoveFromMyList(
+          movie!.id,
+          movie!.title,
+          movie!.thumbnailUrl
+        );
+        setMyList((myList || []).filter((id) => id !== movieId));
+      } else {
+        // TODO: Add to My List API call
+        await fetcher.post(
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists`,
+          {
+            movieId,
+          }
+        );
+        notification.success({
+          message: "Đã thêm vào danh sách",
+          description: "Phim đã được thêm vào danh sách của bạn.",
+        });
+        await notifyAddToMyList(movie!.id, movie!.title, movie!.thumbnailUrl);
+        setMyList([...(myList || []), movieId]);
+      }
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        "Có lỗi xảy ra khi thêm vào danh sách";
+
+      notification.warning({
+        message: "Thông báo",
+        description: message,
+      });
+    }
+  };
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!movie) {

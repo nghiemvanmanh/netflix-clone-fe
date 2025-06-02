@@ -8,8 +8,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { fetcher } from "../../../utils/fetcher";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { notification } from "antd";
-
+import { notification, Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -153,6 +153,7 @@ export default function RegisterPage() {
               className="w-full bg-red-600 hover:bg-red-700 transition-colors font-semibold py-3"
             >
               {isLoading ? "Đang đăng ký..." : "Đăng ký"}
+              {isLoading && <Spin indicator={<LoadingOutlined spin />} />}
             </Button>
           </form>
 

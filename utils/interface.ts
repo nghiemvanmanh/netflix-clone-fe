@@ -61,7 +61,7 @@ export interface Notification {
   message: string;
   type: typeNotification;
   isRead: boolean;
-  createdAt: string;
+  createdAt: Date;
   movieId?: string;
   movieTitle?: string;
   movieImage?: string;

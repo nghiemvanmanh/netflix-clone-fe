@@ -9,7 +9,8 @@ import Cookies from "js-cookie";
 import { fetcher } from "../../../utils/fetcher";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -113,6 +114,7 @@ export default function LoginPage() {
               className="w-full bg-red-600 hover:bg-red-700 transition-colors font-semibold py-3"
             >
               {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+              {isLoading && <Spin indicator={<LoadingOutlined spin />} />}
             </Button>
           </form>
 

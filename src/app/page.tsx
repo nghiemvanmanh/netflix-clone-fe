@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 export default function HomePage() {
   const router = useRouter();
 
@@ -18,7 +19,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="text-white text-xl">Redirecting...</div>
+      <div className="text-white text-xl">
+        Redirecting... <Spin indicator={<LoadingOutlined spin />} />
+      </div>
     </div>
   );
 }

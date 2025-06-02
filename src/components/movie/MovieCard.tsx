@@ -11,8 +11,8 @@ import { fetcher } from "../../../utils/fetcher";
 import parseJwt from "../../../utils/token";
 import { notification } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
-import VideoPlayer from "./video-player";
 import { useRouter } from "next/navigation";
+import { useNotifications } from "@/contexts/use_notification-context";
 
 interface MovieCardProps {
   movie: Movie;
@@ -28,6 +28,9 @@ export default function MovieCard({
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const { notifyAddToMyList, notifyRemoveFromMyList } =
+    useNotifications();
+
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
     const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
@@ -48,6 +51,7 @@ export default function MovieCard({
           message: "Đã xóa khỏi danh sách",
           description: "Phim đã được xóa khỏi danh sách của bạn.",
         });
+        await notifyRemoveFromMyList(movie.id, movie.title, movie.thumbnailUrl);
         setMyList((myList || []).filter((id) => id !== movieId));
       } else {
         // TODO: Add to My List API call
@@ -57,6 +61,7 @@ export default function MovieCard({
             movieId,
           }
         );
+        await notifyAddToMyList(movie.id, movie.title, movie.thumbnailUrl);
         notification.success({
           message: "Đã thêm vào danh sách",
           description: "Phim đã được thêm vào danh sách của bạn.",
