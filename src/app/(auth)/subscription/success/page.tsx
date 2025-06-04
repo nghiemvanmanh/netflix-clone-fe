@@ -17,8 +17,6 @@ export default function SubscriptionSuccessPage() {
   const [paymentData, setPaymentData] = useState<any>(null);
 
   useEffect(() => {
-    console.log({ searchParams });
-    console.log({ paymentData });
     const verifyPayment = async () => {
       const sessionId = searchParams.get("session_id");
       if (!sessionId) {
