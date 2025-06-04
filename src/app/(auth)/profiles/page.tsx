@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 import AddProfileModal from "@/components/Profile/AddProfileModal";
-import { fetcher } from "../../../utils/fetcher";
+import { fetcher } from "../../../../utils/fetcher";
 import Cookies from "js-cookie";
 import {
   Dialog,
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Trash2, AlertTriangle } from "lucide-react";
 import { notification } from "antd";
-import { Profile, User } from "../../../utils/interface";
+import { Profile, User } from "../../../../utils/interface";
 import Loading from "@/components/ui/loading";
 
 export default function ProfilesPage() {
@@ -44,6 +44,10 @@ export default function ProfilesPage() {
     }
 
     const parsedUser = JSON.parse(userData);
+    if (!parsedUser.isActive) {
+      router.push("/subscription");
+      return;
+    }
     setUser(parsedUser);
     fetchProfiles();
   }, [router]);

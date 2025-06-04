@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
-import { Movie, Profile, User } from "../../../utils/interface";
-import { fetcher } from "../../../utils/fetcher";
+import { Movie, Profile, User } from "../../../../utils/interface";
+import { fetcher } from "../../../../utils/fetcher";
 import Header from "@/components/header/header";
 import MovieCard from "@/components/movie/MovieCard";
 import Cookies from "js-cookie";
-import parseJwt from "../../../utils/token";
+import parseJwt from "../../../../utils/token";
 export default function MyListsPage() {
   const [myListMovies, setMyListMovies] = useState<Movie[]>([]);
 

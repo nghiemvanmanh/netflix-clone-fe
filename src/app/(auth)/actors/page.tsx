@@ -7,9 +7,9 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 
 import ActorModal from "@/components/actor/actor-modal";
 import Cookies from "js-cookie";
-import { fetcher } from "../../../utils/fetcher";
+import { fetcher } from "../../../../utils/fetcher";
 import Header from "@/components/header/header";
-import { Actor, User } from "../../../utils/interface";
+import { Actor, User } from "../../../../utils/interface";
 import PersonCard from "@/components/PersonCard";
 import Loading from "@/components/ui/loading";
 export default function ActorsPage() {

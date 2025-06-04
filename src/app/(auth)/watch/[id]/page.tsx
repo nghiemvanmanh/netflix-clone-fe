@@ -12,11 +12,11 @@ import {
   Star,
   Check,
 } from "lucide-react";
-import { Genre, Movie, Profile, User } from "../../../../utils/interface";
-import { fetcher } from "../../../../utils/fetcher";
+import { Genre, Movie, Profile, User } from "../../../../../utils/interface";
+import { fetcher } from "../../../../../utils/fetcher";
 import VideoPlayer from "@/components/movie/video-player";
 import Header from "@/components/header/header";
-import parseJwt from "../../../../utils/token";
+import parseJwt from "../../../../../utils/token";
 import Cookies from "js-cookie";
 import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";

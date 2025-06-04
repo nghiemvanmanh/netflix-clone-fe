@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { fetcher } from "../../../utils/fetcher";
-import { Movie, Profile, User } from "../../../utils/interface";
+import { fetcher } from "../../../../utils/fetcher";
+import { Movie, Profile, User } from "../../../../utils/interface";
 import Header from "@/components/header/header";
 import MovieCard from "@/components/movie/MovieCard";
 import { FeaturedMovie } from "@/components/movie/FeatureMovie";
@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
-import parseJwt from "../../../utils/token";
+import parseJwt from "../../../../utils/token";
 import Cookies from "js-cookie";
 import Loading from "@/components/ui/loading";
 export default function HomePage() {
@@ -25,11 +25,15 @@ export default function HomePage() {
 
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
+    const userData = JSON.parse(Cookies.get("user") || "");
     const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
     const parsedProfile = profileData ? JSON.parse(profileData) : null;
     if (!profileData) {
       router.push("/profiles");
       return;
+    }
+    if (!userData.isActive) {
+      router.push("/subscription");
     }
     setProfile(parsedProfile);
     setUser(parsedCookie);

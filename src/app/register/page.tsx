@@ -5,11 +5,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
-import { fetcher } from "../../../utils/fetcher";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { notification, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { fetcher } from "../../../utils/fetcher";
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");

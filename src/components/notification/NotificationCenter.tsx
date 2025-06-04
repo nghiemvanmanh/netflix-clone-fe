@@ -75,7 +75,7 @@ export default function NotificationCenter({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <Button variant="ghost" className="relative p-2 cursor-pointer">
           <Bell className="w-5 h-5 cursor-pointer hover:text-gray-300" />
           {unreadCount > 0 && (
@@ -86,8 +86,9 @@ export default function NotificationCenter({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="absolute left-[25px] top-[60px] bg-black border border-gray-800 text-white z-[100] 
-        w-[250px] sm:left-[1420px] sm:w-96"
+        align="end"
+        className=" bg-black border border-gray-800 text-white 
+        w-[250px] sm:w-96"
       >
         <div className="p-4 border-b border-gray-800">
           <div className="flex items-center justify-between">

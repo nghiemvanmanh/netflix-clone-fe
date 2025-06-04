@@ -13,11 +13,11 @@ import {
   Star,
   Check,
 } from "lucide-react";
-import { Genre, Movie, Profile, User } from "../../../../utils/interface";
-import { fetcher } from "../../../../utils/fetcher";
+import { Genre, Movie, Profile, User } from "../../../../../utils/interface";
+import { fetcher } from "../../../../../utils/fetcher";
 import Header from "@/components/header/header";
 import Image from "next/image";
-import parseJwt from "../../../../utils/token";
+import parseJwt from "../../../../../utils/token";
 import Cookies from "js-cookie";
 import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";

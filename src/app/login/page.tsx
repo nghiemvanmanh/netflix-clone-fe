@@ -32,8 +32,11 @@ export default function LoginPage() {
       Cookies.set("accessToken", response.data.accessToken);
       Cookies.set("refreshToken", response.data.refreshToken);
       Cookies.set("user", JSON.stringify(response.data.user));
-      router.push("/profiles");
-
+      if (response.data.user.isActive) {
+        router.push("/profiles");
+      } else {
+        router.push("/subscription");
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(
