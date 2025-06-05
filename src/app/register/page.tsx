@@ -91,6 +91,7 @@ export default function RegisterPage() {
 
   const verifyCode = async () => {
     const code = verificationCode.join("");
+    console.log({ verificationCode });
     if (code.length < 6) {
       setVerificationError("Vui lòng nhập đủ 6 chữ số mã xác nhận");
       return;
@@ -98,8 +99,12 @@ export default function RegisterPage() {
     setIsLoading(true);
     setVerificationError("");
     try {
-      await fetcher.post("/users/verify", { email, code });
-      await fetcher.post("/users", { email, phoneNumber, password });
+      await fetcher.post("/users", {
+        email,
+        phoneNumber,
+        password,
+        verificationCode: code,
+      });
 
       notification.success({
         message: "Đăng ký thành công",
