@@ -11,34 +11,27 @@ import MovieCard from "@/components/movie/MovieCard";
 import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
 import Loading from "@/components/ui/loading";
+import { useQuery } from "@tanstack/react-query";
 export default function MyListsPage() {
-  const [myListMovies, setMyListMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [myList, setMyList] = useState<string[]>([]);
   const { user } = useUser();
   const { profile } = useProfile();
   const [isClient, setIsClient] = useState(false);
+
+  const { data: myListMovies, isLoading: loading } = useQuery({
+    queryKey: ["my-lists", user?.id, profile?.id],
+    queryFn: () => {
+      return fetcher
+        .get(`/users/${user?.id}/profiles/${profile?.id}/my-lists`)
+        .then((res) => res.data);
+    },
+    initialData: [],
+  });
   useEffect(() => {
-    const fetchMyList = async () => {
-      if (!user || !profile) {
-        return;
-      }
-      try {
-        const response = await fetcher.get(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists`
-        );
-        setMyList(response.data?.map((item: any) => item.movie.id));
-        setMyListMovies(response.data);
-      } catch (error) {
-        console.error("Error fetching My List:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMyList();
+    setMyList(myListMovies.map((item: any) => item.movie.id));
     setIsClient(true);
-  }, [profile, user]);
+  }, [myListMovies]);
   if (!isClient || loading) {
     return <Loading />;
   }

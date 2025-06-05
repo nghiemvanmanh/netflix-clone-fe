@@ -87,6 +87,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold mb-6">Xu hướng hiện tại</h2>
 
             <Swiper
+              className="!overflow-visible"
               modules={[Autoplay]}
               autoplay={{
                 delay: 3000, // 5 giây
@@ -105,7 +106,7 @@ export default function HomePage() {
               }}
             >
               {movies.map((movie) => (
-                <SwiperSlide key={movie.id}>
+                <SwiperSlide className="hover:z-50" key={movie.id}>
                   <MovieCard
                     movie={movie}
                     isMyList={false}
@@ -121,6 +122,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold mb-6">Phổ biến trên Netflix</h2>
 
             <Swiper
+              className="!overflow-visible"
               modules={[Autoplay]}
               autoplay={{
                 delay: 3000, // 3 giây
@@ -142,7 +144,7 @@ export default function HomePage() {
                 .slice()
                 .reverse()
                 .map((movie) => (
-                  <SwiperSlide key={movie.id}>
+                  <SwiperSlide className=" hover:z-50" key={movie.id}>
                     <MovieCard
                       movie={movie}
                       isMyList={false}

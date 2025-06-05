@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,29 +13,56 @@ import {
   Star,
   Check,
 } from "lucide-react";
-import { Genre, Movie } from "../../../../../../utils/interface";
+import { Movie } from "../../../../../../utils/interface";
 import { fetcher } from "../../../../../../utils/fetcher";
 import Header from "@/components/header/header";
 import Image from "next/image";
 import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
-import Loading from "@/components/ui/loading";
 import { useNotifications } from "@/contexts/use_notification-context";
 import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
 import { typeNotification } from "../../../../../../utils/enum";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { formatTime } from "@/constants/date";
+import Loading from "@/components/ui/loading";
+import { DeleteOutlined } from "@ant-design/icons";
 export default function MovieDetailPage() {
   const router = useRouter();
   const params = useParams();
   const movieId = params.id as string;
-
-  const [movie, setMovie] = useState<Movie | null>(null);
-  const [loading, setLoading] = useState(true);
   const [myList, setMyList] = useState<string[]>([]);
-  const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   const { addNotification } = useNotifications();
   const { user } = useUser();
   const { profile } = useProfile();
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+
+  const { data: comments, refetch: refetchComments } = useQuery({
+    queryKey: ["comments", movieId],
+    queryFn: () => {
+      return fetcher.get(`/reviews/movies/${movieId}`).then((res) => res.data);
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["similarMovies", movieId],
+        queryFn: () =>
+          fetcher.get(`/movies/${movieId}/similar`).then((res) => res.data),
+        refetchOnWindowFocus: false,
+      },
+      {
+        queryKey: ["Movies", movieId],
+        queryFn: () =>
+          fetcher.get(`/movies/${movieId}`).then((res) => res.data),
+        refetchOnWindowFocus: false,
+      },
+    ],
+  });
+  const similarMovies: Movie[] = results[0].data;
+  const movie: Movie = results[1].data;
   useEffect(() => {
     const fetchMyList = async () => {
       if (user?.id && profile?.id) {
@@ -46,33 +73,9 @@ export default function MovieDetailPage() {
       }
     };
 
-    const fetchMovieDetails = async () => {
-      try {
-        const response = await fetcher.get(`/movies/${movieId}`);
-        console.log({ response });
-        setMovie(response.data);
-        const allMovies = await fetcher.get("/movies");
-        const similarMovies = allMovies.data
-          .filter(
-            (m: Movie) =>
-              m.id !== response.data?.id &&
-              m.genres.some((genre: Genre) =>
-                response.data?.genres.some((g: Genre) => g.id === genre.id)
-              )
-          )
-          .slice(0, 6);
-        setSimilarMovies(similarMovies);
-      } catch (error) {
-        console.error("Error fetching movie details:", error);
-        router.push("/home");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMyList();
-    fetchMovieDetails();
-  }, [movieId, router]);
+  }, [movieId]);
+
   const handleToggleMyList = async (movieId: string) => {
     const isInList = myList?.includes(movieId);
     try {
@@ -131,16 +134,46 @@ export default function MovieDetailPage() {
     router.push(`/watch/${movieId}`);
   };
 
-  if (loading) {
-    return <Loading />;
-  }
+  const handleAddComment = async (content: string) => {
+    if (!content.trim()) {
+      notification.warning({
+        message: "Thông báo",
+        description: "Nội dung bình luận không được để trống.",
+      });
+      return;
+    }
+
+    await fetcher.post(`/reviews/movies/${movieId}/profiles/${profile?.id}`, {
+      content,
+      name: profile?.name,
+    });
+    refetchComments();
+
+    notification.success({
+      message: "Bình luận đã được thêm",
+      description: "Bình luận đã được thêm thành công.",
+    });
+  };
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await fetcher.delete(`reviews/movies/${commentId}`);
+      refetchComments();
+
+      notification.success({
+        message: "Bình luận đã được xóa",
+        description: "Bình luận đã được xóa thành công.",
+      });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Có lỗi xảy ra khi xóa bình luận.",
+      });
+    }
+  };
 
   if (!movie) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Movie not found</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -370,7 +403,102 @@ export default function MovieDetailPage() {
                   </div>
                 </div>
               </div>
+              {/* Comments Section */}
+              <div className="bg-gradient-to-br from-gray-800 to-black rounded-lg p-8 mb-8 border border-gray-700 shadow-xl shadow-black/30">
+                <h2 className="text-2xl font-bold mb-6">Bình luận</h2>
 
+                {/* Comments List */}
+                <div className="space-y-6 mb-8">
+                  {/* TODO: Replace with real API call */}
+                  {/*  */}
+                  {comments?.map((comment: any) => (
+                    <div
+                      key={comment.id}
+                      className="bg-gray-800 rounded-lg p-4"
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={
+                              comment.profile.avatarUrl || "/placeholder.svg"
+                            }
+                            alt={comment.name}
+                            className="w-10 h-10 rounded-full"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium text-white">
+                              {comment.name}
+                            </p>
+                            <span className="text-xs text-gray-400">
+                              {formatTime(new Date(comment.createdAt))}
+                            </span>
+                          </div>
+                          <p className="text-gray-300 mt-1">
+                            {comment.content}
+                          </p>
+                        </div>
+                        {user?.isAdmin && (
+                          <Button
+                            onClick={() => {
+                              if (
+                                confirm(
+                                  "Are you sure you want to delete this comment?"
+                                )
+                              ) {
+                                handleDeleteComment(comment.id);
+                              }
+                            }}
+                          >
+                            <DeleteOutlined />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add Comment Form */}
+                <div className="bg-gray-800 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3">Thêm bình luận</h3>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const form = e.target as HTMLFormElement;
+                      const commentInput = form.elements.namedItem(
+                        "comment"
+                      ) as HTMLTextAreaElement;
+                      const comment = commentInput.value.trim();
+
+                      if (comment) {
+                        handleAddComment(comment);
+                        if (commentRef.current) commentRef.current.value = "";
+                      }
+                    }}
+                  >
+                    <textarea
+                      ref={commentRef}
+                      name="comment"
+                      className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                      rows={3}
+                      placeholder="Chia sẻ suy nghĩ của bạn về bộ phim này..."
+                      required
+                    ></textarea>
+                    <p className="text-gray-400 text-xs mt-1">
+                      Bạn có thể bình luận về nội dung, diễn xuất, đạo diễn...
+                    </p>
+                    <div className="flex justify-end mt-3">
+                      <button
+                        type="submit"
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                      >
+                        Đăng
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
               {/* Episodes/Seasons (for TV shows)
               {movie.genres.includes("TV") && (
                 <div className="bg-gray-900 rounded-lg p-8">
@@ -416,7 +544,7 @@ export default function MovieDetailPage() {
               <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-lg p-6 mb-8 shadow-xl shadow-black/30 border border-gray-700">
                 <h3 className="text-xl font-bold mb-4">Bạn có thể thích</h3>
 
-                {similarMovies.length > 0 ? (
+                {similarMovies?.length > 0 ? (
                   <div className="space-y-4">
                     {similarMovies.map((similarMovie) => (
                       <div

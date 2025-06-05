@@ -59,8 +59,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const handleAddNotification = useCallback(
     async (notification: Omit<Notification, "id" | "createdAt">) => {
-      const response = await fetcher.post("/notifications", notification, {
-        params: { profileId: profile?.id },
+      const response = await fetcher.post("/notifications", {
+        ...notification,
+        profileId: profile?.id,
       });
       const newNotification = response.data;
       setNotifications((prev) => [newNotification, ...prev]);
@@ -83,7 +84,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const markAllAsRead = useCallback(async () => {
     await fetcher.patch("/notifications/read-all", {
-      params: { profileId: profile?.id },
+      profileId: profile?.id,
     });
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
   }, [profile]);

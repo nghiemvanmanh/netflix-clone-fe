@@ -256,7 +256,7 @@ export default function Header() {
           onClick={handleOverlayClick}
         >
           <div
-            className="max-w-7xl mx-auto px-32"
+            className="max-w-7xl mx-auto "
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative mb-8">
@@ -307,7 +307,7 @@ export default function Header() {
                     {searchResults.map((movie) => (
                       <div
                         key={movie.id}
-                        className="w-1/1 sm:w-1/2 md:w-1/3 px-4 mb-6 "
+                        className="w-1/1 sm:w-1/2 md:w-1/3 px-14 mb-6 "
                       >
                         <MovieCard
                           movie={movie}

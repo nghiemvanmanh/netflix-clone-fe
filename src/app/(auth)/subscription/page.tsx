@@ -16,7 +16,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, Star, Crown, Zap, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { loadStripe } from "@stripe/stripe-js";
-import { fetcher } from "../../../../../utils/fetcher";
+import { fetcher } from "../../../../utils/fetcher";
 import Cookies from "js-cookie";
 import Loading from "@/components/ui/loading";
 import { motion } from "framer-motion";
@@ -294,7 +294,7 @@ export default function SubscriptionPage() {
               className="bg-white/80 hover:bg-white text-black cursor-pointer px-12 py-4 text-lg font-semibold rounded-md"
             >
               {isLoading ? (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 gap-2">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Đang xử lý...</span>
                 </div>

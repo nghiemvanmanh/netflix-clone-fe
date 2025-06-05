@@ -169,7 +169,7 @@ export default function MovieCard({
           transition={{ duration: 0.3 }}
           className="flex-shrink-0 w-full sm:w-80 group transition-all duration-300"
         >
-          <div className="relative overflow-hidden rounded-lg transform group-hover:scale-110 transition-all duration-300 group-hover:z-10">
+          <div className="relative overflow-hidden rounded-lg transform group-hover:scale-120 transition-all duration-500 group-hover:z-10">
             <div
               className="relative w-full h-48 rounded-lg overflow-hidden cursor-pointer"
               onClick={() => handleMoreInfo(movie.id)}
@@ -273,11 +273,6 @@ export default function MovieCard({
             <h3 className="mt-4 font-semibold text-lg group-hover:text-gray-300 transition-colors">
               {movie.title}
             </h3>
-            <p className="text-gray-400 text-sm">
-              {new Date(movie.releaseDate).getFullYear()} •{" "}
-              {movie.genres.map((genre) => genre.name).join(", ")}
-            </p>
-            <p className="text-gray-500 text-xs mt-1">{movie.duration}</p>
           </div>
         </motion.div>
       )}

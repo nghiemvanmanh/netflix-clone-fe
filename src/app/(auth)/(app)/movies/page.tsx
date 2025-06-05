@@ -12,31 +12,22 @@ import Header from "@/components/header/header";
 import MovieGrid from "@/components/movie/MovieGrid";
 import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
+import { useQuery } from "@tanstack/react-query";
 export default function MoviesPage() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
-  const router = useRouter();
   const { user } = useUser();
-  useEffect(() => {
-    fetchMovies();
-  }, [router]);
-
-  const fetchMovies = async () => {
-    try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // TODO: Replace with real API call
-      const response = await fetcher.get("/movies");
-      setMovies(response.data);
-    } catch (error) {
-      console.error("Error fetching movies:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: movies,
+    refetch: refetchMovies,
+    isLoading: loading,
+  } = useQuery({
+    queryKey: ["movies"],
+    queryFn: () => {
+      return fetcher.get("/movies").then((res) => res.data);
+    },
+    initialData: [],
+  });
 
   const handleAddMovie = () => {
     setEditingMovie(null);
@@ -55,7 +46,7 @@ export default function MoviesPage() {
       // TODO: Replace with real API call
       await fetcher.delete(`/movies/${movieId}`);
 
-      setMovies(movies.filter((movie) => movie.id !== movieId));
+      refetchMovies();
     } catch (error) {
       console.error("Error deleting movie:", error);
     }
@@ -64,12 +55,10 @@ export default function MoviesPage() {
   const handleMovieSaved = (savedMovie: Movie) => {
     if (editingMovie) {
       // Update existing movie
-      setMovies(
-        movies.map((movie) => (movie.id === savedMovie.id ? savedMovie : movie))
-      );
+      refetchMovies();
     } else {
       // Add new movie
-      setMovies([...movies, { ...savedMovie }]);
+      refetchMovies();
     }
     setShowModal(false);
   };
@@ -107,7 +96,7 @@ export default function MoviesPage() {
           </div>
           {/* Movies Grid */}
           <div className="sm:-mx-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-            {movies.map((movie) => (
+            {movies.map((movie: Movie) => (
               <div key={movie.id} className="w-full">
                 <MovieGrid
                   movie={movie}

@@ -31,6 +31,7 @@ export default function RegisterPage() {
   const sendVerificationCode = async () => {
     setIsLoading(true);
     setError("");
+    setVerificationError("");
     try {
       await fetcher.post("/users/send-code", { email });
       notification.success({

@@ -12,31 +12,23 @@ import Header from "@/components/header/header";
 import PersonCard from "@/components/PersonCard";
 import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
+import { useQuery } from "@tanstack/react-query";
 export default function DirectorsPage() {
-  const [directors, setDirectors] = useState<Director[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingDirector, setEditingDirector] = useState<Director | null>(null);
-  const router = useRouter();
+
   const { user } = useUser();
-  useEffect(() => {
-    fetchDirectors();
-  }, [router]);
-
-  const fetchDirectors = async () => {
-    try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      // TODO: Replace with real API call
-      const response = await fetcher.get("/directors");
-
-      setDirectors(response.data);
-    } catch (error) {
-      console.error("Error fetching directors:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: directors,
+    refetch: refetchDirectors,
+    isLoading: loading,
+  } = useQuery({
+    queryKey: ["directors"],
+    queryFn: () => {
+      return fetcher.get("/directors").then((res) => res.data);
+    },
+    initialData: [],
+  });
 
   const handleAddDirector = () => {
     setEditingDirector(null);
@@ -55,7 +47,7 @@ export default function DirectorsPage() {
       // TODO: Replace with real API call
       await fetcher.delete(`/directors/${directorId}`);
 
-      setDirectors(directors.filter((director) => director.id !== directorId));
+      refetchDirectors();
     } catch (error) {
       console.error("Error deleting director:", error);
     }
@@ -64,14 +56,10 @@ export default function DirectorsPage() {
   const handleDirectorSaved = (savedDirector: Director) => {
     if (editingDirector) {
       // Update existing director
-      setDirectors(
-        directors.map((director) =>
-          director.id === savedDirector.id ? savedDirector : director
-        )
-      );
+      refetchDirectors();
     } else {
       // Add new director
-      setDirectors([...directors, { ...savedDirector }]);
+      refetchDirectors();
     }
     setShowModal(false);
   };
@@ -111,7 +99,7 @@ export default function DirectorsPage() {
 
           {/* Directors Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-            {directors.map((director) => (
+            {directors.map((director: Director) => (
               <PersonCard
                 key={director.id}
                 person={director}

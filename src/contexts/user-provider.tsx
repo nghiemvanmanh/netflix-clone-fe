@@ -18,14 +18,10 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     const userData = Cookies.get("accessToken");
     if (userData) {
       setUser(parseJwt(userData));
-      if (!parseJwt(userData || "").isActive) {
-        router.push("/subscription");
-        return;
-      }
     } else {
       router.push("/login");
     }
-  }, [user]);
+  }, []);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

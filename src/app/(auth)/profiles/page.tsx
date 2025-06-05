@@ -19,11 +19,10 @@ import { notification } from "antd";
 import { Profile, User } from "../../../../utils/interface";
 import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ProfilesPage() {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { user } = useUser();
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -36,20 +35,18 @@ export default function ProfilesPage() {
   const [deletingProfileId, setDeletingProfileId] = useState<string | null>(
     null
   );
-  useEffect(() => {
-    const fetchProfiles = async () => {
-      try {
-        const response = await fetcher.get(`/profiles`);
-        console.log("Fetched profiles:", response.data);
-        setProfiles(response.data);
-      } catch (error) {
-        console.error("Error fetching profiles:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfiles();
-  }, []);
+
+  const {
+    data: profiles,
+    refetch: refetchProfiles,
+    isLoading: loading,
+  } = useQuery({
+    queryKey: ["profiles"],
+    queryFn: () => {
+      return fetcher.get(`/profiles`).then((res) => res.data);
+    },
+    initialData: [],
+  });
 
   const handleDeleteProfile = (profile: Profile, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -63,7 +60,7 @@ export default function ProfilesPage() {
     try {
       await fetcher.delete(`/profiles/${deleteConfirm.profile.id}`);
 
-      setProfiles(profiles.filter((p) => p.id !== deleteConfirm.profile!.id));
+      refetchProfiles();
 
       notification.success({
         message: "Xóa hồ sơ",
@@ -85,8 +82,8 @@ export default function ProfilesPage() {
     router.push("/home");
   };
 
-  const handleProfileCreated = (newProfile: Profile) => {
-    setProfiles([...profiles, newProfile]);
+  const handleProfileCreated = () => {
+    refetchProfiles();
     setShowAddModal(false);
   };
 
@@ -104,7 +101,7 @@ export default function ProfilesPage() {
 
         <div className="flex justify-center">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 max-w-4xl">
-            {profiles.map((profile) => (
+            {profiles.map((profile: Profile) => (
               <div
                 key={profile.id}
                 className="flex flex-col items-center cursor-pointer group"

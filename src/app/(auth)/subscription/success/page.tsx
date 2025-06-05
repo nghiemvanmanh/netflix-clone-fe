@@ -5,55 +5,54 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, CheckCircle, Star } from "lucide-react";
-import { fetcher } from "../../../../../../utils/fetcher";
+import { fetcher } from "../../../../../utils/fetcher";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useUser } from "@/contexts/user-provider";
 import Loading from "@/components/ui/loading";
+import { useQuery } from "@tanstack/react-query";
 export default function SubscriptionSuccessPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [loading, setLoading] = useState(true);
-  const [paymentData, setPaymentData] = useState<any>(null);
   const { user } = useUser();
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session_id");
+  const router = useRouter();
+
+  const {
+    data: paymentData,
+    isLoading: isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["verify-payment", sessionId],
+    enabled: !!sessionId, // chỉ chạy khi có sessionId
+    queryFn: () => {
+      return fetcher.post(
+        `/subscriptions/verify-payment?session_id=${sessionId}`
+      ).then((res) => res.data);
+    },
+  });
+
   useEffect(() => {
-    const verifyPayment = async () => {
-      const sessionId = searchParams.get("session_id");
-      if (!sessionId) {
-        router.push("/subscription");
-        return;
-      }
-
-      try {
-        const response = await fetcher.post(
-          `/subscriptions/verify-payment?session_id=${sessionId}`
-        );
-        const data = response.data;
-        if (data?.success) {
-          Cookies.set("accessToken", data.accessToken);
-
-          setPaymentData(data);
-        } else {
-          router.push("/subscription/cancel");
-        }
-      } catch (error) {
-        console.error("Lỗi xác minh thanh toán:", error);
+    if (!isLoading) {
+      if (paymentData?.success) {
+        Cookies.set("accessToken", paymentData.accessToken);
+      } else {
         router.push("/subscription/cancel");
-      } finally {
-        setLoading(false);
       }
-    };
-
-    verifyPayment();
-  }, []);
+    }
+    if (error) {
+      // error is of type unknown, so we can type it here
+      const err = error as Error;
+      console.error("Lỗi xác minh thanh toán:", err);
+      router.push("/subscription/cancel");
+    }
+  }, [paymentData, isLoading, error, router]);
 
   const handleContinue = () => {
     router.push("/profiles");
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -126,15 +125,17 @@ export default function SubscriptionSuccessPage() {
               </div>
 
               <div className="space-y-2 text-sm text-gray-400">
-                {paymentData.planText.map((feature: string, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center space-x-2 w-full justify-center"
-                  >
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-white">{feature}</span>
-                  </div>
-                ))}
+                {paymentData.planText.map(
+                  (feature: string, index: number) => (
+                    <div
+                      key={index}
+                      className="flex items-center space-x-2 w-full justify-center"
+                    >
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span className="text-sm text-white">{feature}</span>
+                    </div>
+                  )
+                )}
               </div>
               <motion.div
                 whileHover={{ scale: 1.05 }}

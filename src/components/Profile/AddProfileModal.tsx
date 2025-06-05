@@ -61,7 +61,6 @@ export default function AddProfileModal({
 
       const newProfile = response.data;
       onProfileCreated(newProfile);
-      window.location?.reload(); // Reload to reflect changes in the profile list
     } catch (error) {
       console.error("Error creating profile:", error);
       alert("Failed to create profile");

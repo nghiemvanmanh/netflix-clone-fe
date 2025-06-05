@@ -23,65 +23,50 @@ import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/ui/loading";
 import { useNotifications } from "@/contexts/use_notification-context";
 import { typeNotification } from "../../../../../../utils/enum";
+import { useQueries } from "@tanstack/react-query";
+import { useProfile } from "@/contexts/use-profile";
+import { useUser } from "@/contexts/user-provider";
 export default function WatchPage() {
   const router = useRouter();
   const params = useParams();
   const movieId = params.id as string;
 
-  const [movie, setMovie] = useState<Movie>();
-  const [loading, setLoading] = useState(true);
-  const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [myList, setMyList] = useState<string[]>([]);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const { addNotification } = useNotifications();
+  const { user } = useUser();
+  const { profile } = useProfile();
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["similarMovies", movieId],
+        queryFn: () =>
+          fetcher.get(`/movies/${movieId}/similar`).then((res) => res.data),
+        refetchOnWindowFocus: false,
+      },
+      {
+        queryKey: ["Movies", movieId],
+        queryFn: () =>
+          fetcher.get(`/movies/${movieId}`).then((res) => res.data),
+        refetchOnWindowFocus: false,
+      },
+    ],
+  });
+
+  const similarMovies: Movie[] = results[0].data;
+  const movie: Movie = results[1].data;
+  const loading = results.some((result) => result.isLoading);
   useEffect(() => {
-    const profileData = localStorage.getItem("selectedProfile");
-    const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
-    const parsedProfile = profileData ? JSON.parse(profileData) : null;
-    setUser(parsedCookie);
-    setProfile(parsedProfile);
     const fetchMyList = async () => {
-      if (parsedCookie?.id && parsedProfile?.id) {
+      if (user?.id && profile?.id) {
         const response = await fetcher.get(
-          `/users/${parsedCookie.id}/profiles/${parsedProfile.id}/my-lists`
+          `/users/${user.id}/profiles/${profile.id}/my-lists`
         );
         setMyList(response.data?.map((item: any) => item.movie.id));
       }
     };
     fetchMyList();
-    fetchMovieDetails();
   }, [movieId, router]);
-
-  const fetchMovieDetails = async () => {
-    try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // TODO: Replace with real API call
-      const response = await fetcher.get(`/movies/${movieId}`);
-      const allMovies = await fetcher.get("/movies");
-      setMovie(response.data);
-      const similar = allMovies.data
-        .filter(
-          (m: Movie) =>
-            m.id !== response.data?.id &&
-            m.genres.some((genre: Genre) =>
-              response.data?.genres.some((g: Genre) => g.id === genre.id)
-            )
-        )
-        .slice(0, 6);
-
-      console.log("Similar movies:", similar);
-      setSimilarMovies(similar);
-    } catch (error) {
-      console.error("Error fetching movie details:", error);
-      router.push("/home");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleToggleMyList = async (movieId: string) => {
     const isInList = myList?.includes(movieId);

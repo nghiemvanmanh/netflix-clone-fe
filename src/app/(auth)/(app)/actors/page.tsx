@@ -12,30 +12,26 @@ import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
 import { Actor } from "../../../../../utils/interface";
 import { fetcher } from "../../../../../utils/fetcher";
+import { useQuery } from "@tanstack/react-query";
+
 export default function ActorsPage() {
-  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingActor, setEditingActor] = useState<Actor | null>(null);
   const router = useRouter();
-  const [actors, setActors] = useState<Actor[]>([]);
+
   const { user } = useUser();
+  const {
+    data: actors,
+    refetch: refetchActors,
+    isLoading: loading,
+  } = useQuery({
+    queryKey: ["actors"],
+    queryFn: () => {
+      return fetcher.get("/actors").then((res) => res.data);
+    },
+    initialData: [],
+  });
 
-  useEffect(() => {
-    fetchActors();
-  }, [router]);
-  const fetchActors = async () => {
-    try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const response = await fetcher.get("/actors");
-      setActors(response.data);
-    } catch (error) {
-      console.error("Error fetching actors:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
   const handleAddActor = () => {
     setEditingActor(null);
     setShowModal(true);
@@ -53,7 +49,7 @@ export default function ActorsPage() {
       // TODO: Replace with real API call
       await fetcher.delete(`/actors/${actorId}`);
 
-      setActors(actors.filter((actor) => actor.id !== actorId));
+      refetchActors();
     } catch (error) {
       console.error("Error deleting actor:", error);
     }
@@ -62,12 +58,10 @@ export default function ActorsPage() {
   const handleActorSaved = (savedActor: Actor) => {
     if (editingActor) {
       // Update existing actor
-      setActors(
-        actors.map((actor) => (actor.id === savedActor.id ? savedActor : actor))
-      );
+      refetchActors();
     } else {
       // Add new actor
-      setActors([...actors, { ...savedActor, id: savedActor.id }]);
+      refetchActors();
     }
     setShowModal(false);
   };
@@ -107,7 +101,7 @@ export default function ActorsPage() {
 
           {/* Actors Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-            {actors.map((actor) => (
+            {actors.map((actor: Actor) => (
               <PersonCard
                 key={actor.id}
                 person={actor}
