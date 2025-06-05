@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { fetcher } from "../../../../utils/fetcher";
-import { Movie, Profile, User } from "../../../../utils/interface";
+import { Movie } from "../../../../utils/interface";
 import Header from "@/components/header/header";
 import MovieCard from "@/components/movie/MovieCard";
 import { FeaturedMovie } from "@/components/movie/FeatureMovie";
@@ -11,32 +10,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
-import parseJwt from "../../../../utils/token";
-import Cookies from "js-cookie";
 import Loading from "@/components/ui/loading";
+import { useProfile } from "@/contexts/use-profile";
+import { useUser } from "@/contexts/user-provider";
 export default function HomePage() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [myList, setMyList] = useState<string[]>([]);
-
-  const router = useRouter();
-
+  const { user } = useUser();
+  const { profile } = useProfile();
   useEffect(() => {
-    const profileData = localStorage.getItem("selectedProfile");
-    const userData = JSON.parse(Cookies.get("user") || "");
-    const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
-    const parsedProfile = profileData ? JSON.parse(profileData) : null;
-    if (!profileData) {
-      router.push("/profiles");
-      return;
-    }
-    if (!userData.isActive) {
-      router.push("/subscription");
-    }
-    setProfile(parsedProfile);
-    setUser(parsedCookie);
     let intervalId: NodeJS.Timeout | null = null;
 
     const fetchMovies = async () => {
@@ -58,9 +41,9 @@ export default function HomePage() {
     };
 
     const fetchMyList = async () => {
-      if (parsedCookie?.id && parsedProfile?.id) {
+      if (user?.id && profile?.id) {
         const response = await fetcher.get(
-          `/users/${parsedCookie.id}/profiles/${parsedProfile.id}/my-lists`
+          `/users/${user.id}/profiles/${profile.id}/my-lists`
         );
         setMyList(response.data?.map((item: any) => item.movie.id));
       }
@@ -71,7 +54,7 @@ export default function HomePage() {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, []);
+  }, [profile]);
 
   if (!profile) {
     return <Loading />;
@@ -125,6 +108,7 @@ export default function HomePage() {
                 <SwiperSlide key={movie.id}>
                   <MovieCard
                     movie={movie}
+                    isMyList={false}
                     myList={myList}
                     setMyList={setMyList}
                   />
@@ -161,6 +145,7 @@ export default function HomePage() {
                   <SwiperSlide key={movie.id}>
                     <MovieCard
                       movie={movie}
+                      isMyList={false}
                       myList={myList}
                       setMyList={setMyList}
                     />

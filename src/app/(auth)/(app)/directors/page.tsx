@@ -11,21 +11,15 @@ import { fetcher } from "../../../../utils/fetcher";
 import Header from "@/components/header/header";
 import PersonCard from "@/components/PersonCard";
 import Loading from "@/components/ui/loading";
+import { useUser } from "@/contexts/user-provider";
 export default function DirectorsPage() {
-  const [user, setUser] = useState<User | null>(null);
   const [directors, setDirectors] = useState<Director[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingDirector, setEditingDirector] = useState<Director | null>(null);
   const router = useRouter();
-
+  const { user } = useUser();
   useEffect(() => {
-    const userData = Cookies.get("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
-    } else {
-      router.push("/login");
-    }
     fetchDirectors();
   }, [router]);
 

@@ -6,24 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Cookies from "js-cookie";
 import MovieModal from "@/components/movie/movie-modal";
-import { Movie, User } from "../../../../utils/interface";
-import { fetcher } from "../../../../utils/fetcher";
+import { Movie, User } from "../../../../../utils/interface";
+import { fetcher } from "../../../../../utils/fetcher";
 import Header from "@/components/header/header";
 import MovieGrid from "@/components/movie/MovieGrid";
 import Loading from "@/components/ui/loading";
+import { useUser } from "@/contexts/user-provider";
 export default function MoviesPage() {
-  const [user, setUser] = useState<User | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
   const router = useRouter();
-
+  const { user } = useUser();
   useEffect(() => {
-    const userCookie = Cookies.get("user");
-    if (userCookie) {
-      setUser(JSON.parse(userCookie));
-    }
     fetchMovies();
   }, [router]);
 

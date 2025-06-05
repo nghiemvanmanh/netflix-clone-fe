@@ -31,14 +31,17 @@ import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 import { Drawer, Menu } from "antd";
 import NotificationCenter from "../notification/NotificationCenter";
 import { useNotifications } from "@/contexts/use_notification-context";
+import { useProfile } from "@/contexts/use-profile";
+import { useUser } from "@/contexts/user-provider";
 export default function Header() {
   const router = useRouter();
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [myList, setMyList] = useState<string[]>([]);
+  const { profile } = useProfile();
+  const { user } = useUser();
   const {
     notifications,
     markAsRead,
@@ -49,22 +52,12 @@ export default function Header() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const profileData = localStorage.getItem("selectedProfile");
-      const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
-      const parsedProfile = profileData ? JSON.parse(profileData) : null;
-
-      if (!profileData) {
-        router.push("/profiles");
-        return;
-      }
-      setProfile(parsedProfile);
-      if (parsedCookie?.id && parsedProfile?.id) {
+      if (user?.id && profile?.id) {
         const response = await fetcher.get(
-          `/users/${parsedCookie.id}/profiles/${parsedProfile.id}/my-lists`
+          `/users/${user.id}/profiles/${profile.id}/my-lists`
         );
         setMyList(response.data?.map((item: any) => item.movie.id));
       }
-      setProfile(parsedProfile);
     };
     fetchData();
   }, [router]);
@@ -318,6 +311,7 @@ export default function Header() {
                       >
                         <MovieCard
                           movie={movie}
+                          isMyList={false}
                           myList={myList}
                           setMyList={setMyList}
                         />

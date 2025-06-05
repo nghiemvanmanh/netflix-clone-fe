@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
@@ -11,6 +11,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import parseJwt from "../../../utils/token";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,7 +76,7 @@ export default function LoginPage() {
 
       {/* Login Form */}
       <div className="relative z-10 flex justify-center items-center min-h-[calc(100vh-64px)] px-4">
-        <div className="bg-black bg-opacity-75 p-10 rounded-md w-full max-w-md">
+        <div className="bg-black/80 bg-opacity-75 p-10 rounded-md w-full max-w-md">
           <h1 className="text-3xl font-bold mb-8">Đăng nhập</h1>
 
           {error && (

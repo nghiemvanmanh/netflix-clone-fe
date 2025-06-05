@@ -3,6 +3,7 @@ import React, { PropsWithChildren, useEffect, useState } from "react";
 import { User } from "../../utils/interface";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import parseJwt from "../../utils/token";
 
 const UserContext = React.createContext<{
   user: User | null;
@@ -14,13 +15,17 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
   const router = useRouter();
 
   useEffect(() => {
-    const userData = Cookies.get("user");
+    const userData = Cookies.get("accessToken");
     if (userData) {
-      setUser(JSON.parse(userData));
+      setUser(parseJwt(userData));
+      if (!parseJwt(userData || "").isActive) {
+        router.push("/subscription");
+        return;
+      }
     } else {
       router.push("/login");
     }
-  }, []);
+  }, [user]);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

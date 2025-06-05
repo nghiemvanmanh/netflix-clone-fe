@@ -1,15 +1,17 @@
 // components/MovieCard.tsx
 import { Play, Info, Edit, Trash2, Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Movie, Profile, User } from "../../../utils/interface";
+import { Movie } from "../../../utils/interface";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { notification } from "antd";
-import parseJwt from "../../../utils/token";
-import Cookies from "js-cookie";
 import { fetcher } from "../../../utils/fetcher";
+import { useNotifications } from "@/contexts/use_notification-context";
+import { useUser } from "@/contexts/user-provider";
+import { useProfile } from "@/contexts/use-profile";
+import { typeNotification } from "../../../utils/enum";
 type Props = {
   movie: Movie;
   isAdmin?: boolean;
@@ -19,20 +21,13 @@ type Props = {
 
 export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
   const router = useRouter();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [myList, setMyList] = useState<string[] | null>(null);
-  useEffect(() => {
-    const profileData = localStorage.getItem("selectedProfile");
-    const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
-    const parsedProfile = profileData ? JSON.parse(profileData) : null;
-    setProfile(parsedProfile);
-    setUser(parsedCookie);
-  }, []);
 
+  const [myList, setMyList] = useState<string[] | null>(null);
+  const { user } = useUser();
+  const { profile } = useProfile();
+  const { addNotification } = useNotifications();
   const handleToggleMyList = async (movieId: string) => {
     const isInList = myList?.includes(movieId);
-    console.log({ myList });
     try {
       if (isInList) {
         // TODO: Remove from My List API call
@@ -43,6 +38,14 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
           message: "Đã xóa khỏi danh sách",
           description: "Phim đã được xóa khỏi danh sách của bạn.",
         });
+        await addNotification(
+          "Đã xóa khỏi danh sách",
+          "Phim đã được xóa khỏi danh sách của bạn.",
+          typeNotification.WARNING,
+          movie.id,
+          movie.title,
+          movie.thumbnailUrl
+        );
         setMyList((myList || []).filter((id) => id !== movieId));
       } else {
         // TODO: Add to My List API call
@@ -56,6 +59,15 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
           message: "Đã thêm vào danh sách",
           description: "Phim đã được thêm vào danh sách của bạn.",
         });
+        await addNotification(
+          "Đã thêm vào danh sách",
+          "Phim đã được thêm vào danh sách của bạn.",
+          typeNotification.SUCCESS,
+          movie.id,
+          movie.title,
+          movie.thumbnailUrl
+        );
+        // Update local state
         setMyList([...(myList || []), movieId]);
       }
     } catch (error: any) {

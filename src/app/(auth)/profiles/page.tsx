@@ -18,14 +18,14 @@ import { Plus, Trash2, AlertTriangle } from "lucide-react";
 import { notification } from "antd";
 import { Profile, User } from "../../../../utils/interface";
 import Loading from "@/components/ui/loading";
+import { useUser } from "@/contexts/user-provider";
 
 export default function ProfilesPage() {
-  const [user, setUser] = useState<User | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
+  const { user } = useUser();
   const [deleteConfirm, setDeleteConfirm] = useState<{
     show: boolean;
     profile: Profile | null;
@@ -37,31 +37,20 @@ export default function ProfilesPage() {
     null
   );
   useEffect(() => {
-    const userData = Cookies.get("user");
-    if (!userData) {
-      router.push("/login");
-      return;
-    }
-
-    const parsedUser = JSON.parse(userData);
-    if (!parsedUser.isActive) {
-      router.push("/subscription");
-      return;
-    }
-    setUser(parsedUser);
+    const fetchProfiles = async () => {
+      try {
+        const response = await fetcher.get(`/profiles`);
+        console.log("Fetched profiles:", response.data);
+        setProfiles(response.data);
+      } catch (error) {
+        console.error("Error fetching profiles:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchProfiles();
-  }, [router]);
+  }, []);
 
-  const fetchProfiles = async () => {
-    try {
-      const response = await fetcher.get(`/profiles`);
-      setProfiles(response.data);
-    } catch (error) {
-      console.error("Error fetching profiles:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
   const handleDeleteProfile = (profile: Profile, e: React.MouseEvent) => {
     e.stopPropagation();
     setDeleteConfirm({ show: true, profile });
@@ -72,15 +61,10 @@ export default function ProfilesPage() {
     setDeletingProfileId(deleteConfirm.profile.id);
 
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       await fetcher.delete(`/profiles/${deleteConfirm.profile.id}`);
 
-      // Remove profile from list with animation
       setProfiles(profiles.filter((p) => p.id !== deleteConfirm.profile!.id));
 
-      // Show success notification (you can add toast library here)
       notification.success({
         message: "Xóa hồ sơ",
         description: `Hồ sơ "${deleteConfirm.profile.name}" đã được xóa thành công!`,

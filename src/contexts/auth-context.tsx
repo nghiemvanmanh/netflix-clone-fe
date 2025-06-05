@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { message } from "antd";
 import { useRouter } from "next/navigation";
-import { fetcher } from "./fetcher";
+import { fetcher } from "../../utils/fetcher";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     Cookies.remove("accessToken");
     Cookies.remove("refreshToken");
     setIsAuthenticated(false);
-    router.push("/");
+    router.push("/login");
     message.success("Đăng xuất thành công");
   };
 

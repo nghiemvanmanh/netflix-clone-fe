@@ -1,4 +1,3 @@
-// context/NotificationContext.tsx
 "use client";
 
 import {
@@ -13,23 +12,22 @@ import {
 import { typeNotification } from "../../utils/enum";
 import { fetcher } from "../../utils/fetcher";
 import { Notification } from "../../utils/interface";
+import { useProfile } from "./use-profile";
 
 interface NotificationContextProps {
   notifications: Notification[];
   loading: boolean;
-  addNotification: (
+  handleAddNotification: (
     notification: Omit<Notification, "id" | "createdAt">
   ) => Promise<Notification>;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   deleteNotification: (id: string) => Promise<void>;
   deleteAll: () => Promise<void>;
-  notifyAddToMyList: (
-    movieId: string,
-    movieTitle: string,
-    movieImage?: string
-  ) => Promise<void>;
-  notifyRemoveFromMyList: (
+  addNotification: (
+    title: string,
+    message: string,
+    type: typeNotification,
     movieId: string,
     movieTitle: string,
     movieImage?: string
@@ -44,108 +42,118 @@ const NotificationContext = createContext<NotificationContextProps | undefined>(
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const { profile } = useProfile();
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetcher.get("/notifications");
+      const response = await fetcher.get("/notifications", {
+        params: { profileId: profile?.id },
+      });
       setNotifications(response.data);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [profile]);
 
-  const addNotification = useCallback(
+  const handleAddNotification = useCallback(
     async (notification: Omit<Notification, "id" | "createdAt">) => {
-      const response = await fetcher.post("/notifications", notification);
+      const response = await fetcher.post("/notifications", notification, {
+        params: { profileId: profile?.id },
+      });
       const newNotification = response.data;
       setNotifications((prev) => [newNotification, ...prev]);
       return newNotification;
     },
-    []
+    [profile]
   );
 
-  const markAsRead = useCallback(async (id: string) => {
-    await fetcher.patch(`/notifications/${id}/read`);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
-  }, []);
+  const markAsRead = useCallback(
+    async (id: string) => {
+      await fetcher.patch(`/notifications/${id}/read`, {
+        params: { profileId: profile?.id },
+      });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    },
+    [profile]
+  );
 
   const markAllAsRead = useCallback(async () => {
-    await fetcher.patch("/notifications/read-all");
+    await fetcher.patch("/notifications/read-all", {
+      params: { profileId: profile?.id },
+    });
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-  }, []);
+  }, [profile]);
 
-  const deleteNotification = useCallback(async (id: string) => {
-    await fetcher.delete(`/notifications/${id}`);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
-  const deleteAll = useCallback(async () => {
-    await fetcher.delete("/notifications");
-    setNotifications([]);
-  }, []);
-  // Add notification when adding to My List
-  const notifyAddToMyList = useCallback(
-    async (movieId: string, movieTitle: string, movieImage?: string) => {
-      await addNotification({
-        title: "Đã thêm vào danh sách",
-        message: "Phim đã được thêm vào danh sách của bạn",
-        type: typeNotification.SUCCESS,
-        isRead: false,
-        movieId,
-        movieTitle,
-        movieImage,
+  const deleteNotification = useCallback(
+    async (id: string) => {
+      await fetcher.delete(`/notifications/${id}`, {
+        params: { profileId: profile?.id },
       });
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
     },
-    [addNotification]
+    [profile]
   );
 
-  // Add notification when removing from My List
-  const notifyRemoveFromMyList = useCallback(
-    async (movieId: string, movieTitle: string, movieImage?: string) => {
-      await addNotification({
-        title: "Đã xóa khỏi danh sách",
-        message: "Phim đã được xóa khỏi danh sách của bạn",
-        type: typeNotification.WARNING,
+  const deleteAll = useCallback(async () => {
+    await fetcher.delete("/notifications", {
+      params: { profileId: profile?.id },
+    });
+    setNotifications([]);
+  }, [profile]);
+  // Add notification when adding to My List
+  const addNotification = useCallback(
+    async (
+      title: string,
+      message: string,
+      type: typeNotification,
+      movieId: string,
+      movieTitle: string,
+      movieImage?: string
+    ) => {
+      await handleAddNotification({
+        title,
+        message,
+        type,
         isRead: false,
         movieId,
         movieTitle,
         movieImage,
       });
     },
-    [addNotification]
+    [handleAddNotification]
   );
 
   useEffect(() => {
-    fetchNotifications();
+    if (profile?.id) {
+      fetchNotifications();
+    }
   }, [fetchNotifications]);
 
   const value = useMemo(
     () => ({
       notifications,
       loading,
-      addNotification,
+      handleAddNotification,
       markAsRead,
       markAllAsRead,
       deleteNotification,
       deleteAll,
-      notifyAddToMyList,
-      notifyRemoveFromMyList,
+      addNotification,
       fetchNotifications,
     }),
     [
       notifications,
       loading,
-      addNotification,
+      handleAddNotification,
       markAsRead,
       markAllAsRead,
       deleteNotification,
       deleteAll,
-      notifyAddToMyList,
-      notifyRemoveFromMyList,
+      addNotification,
       fetchNotifications,
     ]
   );

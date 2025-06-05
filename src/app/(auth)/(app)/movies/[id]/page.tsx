@@ -13,38 +13,36 @@ import {
   Star,
   Check,
 } from "lucide-react";
-import { Genre, Movie, Profile, User } from "../../../../../utils/interface";
-import { fetcher } from "../../../../../utils/fetcher";
+import { Genre, Movie, Profile, User } from "../../../../../../utils/interface";
+import { fetcher } from "../../../../../../utils/fetcher";
 import Header from "@/components/header/header";
 import Image from "next/image";
-import parseJwt from "../../../../../utils/token";
+import parseJwt from "../../../../../../utils/token";
 import Cookies from "js-cookie";
 import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/ui/loading";
 import { useNotifications } from "@/contexts/use_notification-context";
+import { useUser } from "@/contexts/user-provider";
+import { useProfile } from "@/contexts/use-profile";
+import { typeNotification } from "../../../../../../utils/enum";
 export default function MovieDetailPage() {
   const router = useRouter();
   const params = useParams();
   const movieId = params.id as string;
 
   const [movie, setMovie] = useState<Movie | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [myList, setMyList] = useState<string[]>([]);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
-  const { notifyAddToMyList, notifyRemoveFromMyList } = useNotifications();
+  const { addNotification } = useNotifications();
+  const { user } = useUser();
+  const { profile } = useProfile();
   useEffect(() => {
-    const profileData = localStorage.getItem("selectedProfile");
-    const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
-    const parsedProfile = profileData ? JSON.parse(profileData) : null;
-    setProfile(parsedProfile);
-    setUser(parsedCookie);
     const fetchMyList = async () => {
-      if (parsedCookie?.id && parsedProfile?.id) {
+      if (user?.id && profile?.id) {
         const response = await fetcher.get(
-          `/users/${parsedCookie.id}/profiles/${parsedProfile.id}/my-lists`
+          `/users/${user.id}/profiles/${profile.id}/my-lists`
         );
         setMyList(response.data?.map((item: any) => item.movie.id));
       }
@@ -89,7 +87,10 @@ export default function MovieDetailPage() {
           message: "Đã xóa khỏi danh sách",
           description: "Phim đã được xóa khỏi danh sách của bạn.",
         });
-        await notifyRemoveFromMyList(
+        await addNotification(
+          "Đã xóa khỏi danh sách",
+          "Phim đã được xóa khỏi danh sách của bạn.",
+          typeNotification.WARNING,
           movie!.id,
           movie!.title,
           movie!.thumbnailUrl
@@ -107,7 +108,14 @@ export default function MovieDetailPage() {
           message: "Đã thêm vào danh sách",
           description: "Phim đã được thêm vào danh sách của bạn.",
         });
-        await notifyAddToMyList(movie!.id, movie!.title, movie!.thumbnailUrl);
+        await addNotification(
+          "Đã thêm vào danh sách",
+          "Phim đã được thêm vào danh sách của bạn.",
+          typeNotification.SUCCESS,
+          movie!.id,
+          movie!.title,
+          movie!.thumbnailUrl
+        );
         setMyList([...(myList || []), movieId]);
       }
     } catch (error: any) {
@@ -245,18 +253,40 @@ export default function MovieDetailPage() {
                 <Button
                   variant="outline"
                   className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
+                  onClick={() => {
+                    notification.success({
+                      message: "Cảm ơn bạn đã thích phim này!",
+                      description: "Chúng tôi rất vui khi bạn thích nó.",
+                    });
+                  }}
                 >
                   <ThumbsUp className="w-6 h-6" />
                 </Button>
                 <Button
                   variant="outline"
                   className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
+                  onClick={() => {
+                    notification.warning({
+                      message: "Xin lỗi bạn về sự không hài lòng này!",
+                      description: "Chúng tôi sẽ cải thiện phim hơn nữa.",
+                    });
+                  }}
                 >
                   <ThumbsDown className="w-6 h-6" />
                 </Button>
                 <Button
                   variant="outline"
                   className="border-gray-400 text-black cursor-pointer hover:border-white px-4 py-3"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `${window.location.origin}/movies/${movieId}`
+                    );
+                    notification.success({
+                      message: "Đã sao chép liên kết!",
+                      description:
+                        "Bạn có thể chia sẻ liên kết này với bạn bè.",
+                    });
+                  }}
                 >
                   <Share className="w-6 h-6" />
                 </Button>

@@ -2,9 +2,8 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { PropsWithChildren } from "react";
-import { UserProvider } from "@/contexts/user-provider";
-import { AuthProvider } from "@/contexts/auth-context";
-
+import { NotificationProvider } from "@/contexts/use_notification-context";
+import { ProfileProvider } from "@/contexts/use-profile";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -16,9 +15,13 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="vi">
       <body className={`${inter.className} bg-black text-white`}>
-        <AuthProvider>
-          <UserProvider>{children}</UserProvider>
-        </AuthProvider>
+        <ProfileProvider>
+          <NotificationProvider>
+            {" "}
+            {/* 👈 Thêm vào đây */}
+            {children}
+          </NotificationProvider>
+        </ProfileProvider>
       </body>
     </html>
   );

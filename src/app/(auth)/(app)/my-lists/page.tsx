@@ -4,28 +4,29 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
-import { Movie, Profile, User } from "../../../../utils/interface";
-import { fetcher } from "../../../../utils/fetcher";
+import { Movie, Profile, User } from "../../../../../utils/interface";
+import { fetcher } from "../../../../../utils/fetcher";
 import Header from "@/components/header/header";
 import MovieCard from "@/components/movie/MovieCard";
-import Cookies from "js-cookie";
-import parseJwt from "../../../../utils/token";
+import { useUser } from "@/contexts/user-provider";
+import { useProfile } from "@/contexts/use-profile";
+import Loading from "@/components/ui/loading";
 export default function MyListsPage() {
   const [myListMovies, setMyListMovies] = useState<Movie[]>([]);
-
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [myList, setMyList] = useState<string[]>([]);
+  const { user } = useUser();
+  const { profile } = useProfile();
+  const [isClient, setIsClient] = useState(false);
   useEffect(() => {
-    const profileData = localStorage.getItem("selectedProfile");
-    const cookie = Cookies.get("accessToken");
-    const parsedCookie = parseJwt(cookie || "");
-    const parsedProfile = JSON.parse(profileData || "{}");
-
     const fetchMyList = async () => {
+      if (!user || !profile) {
+        return;
+      }
       try {
         const response = await fetcher.get(
-          `/users/${parsedCookie?.id}/profiles/${parsedProfile?.id}/my-lists`
+          `/users/${user?.id}/profiles/${profile?.id}/my-lists`
         );
         setMyList(response.data?.map((item: any) => item.movie.id));
         setMyListMovies(response.data);
@@ -36,8 +37,11 @@ export default function MyListsPage() {
       }
     };
     fetchMyList();
-  }, []);
-
+    setIsClient(true);
+  }, [profile, user]);
+  if (!isClient || loading) {
+    return <Loading />;
+  }
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -63,6 +67,7 @@ export default function MyListsPage() {
                 <MovieCard
                   key={movie.movie.id}
                   movie={movie.movie}
+                  isMyList={true}
                   myList={myList}
                   setMyList={setMyList}
                 />

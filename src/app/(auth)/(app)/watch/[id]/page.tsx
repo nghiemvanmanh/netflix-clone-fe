@@ -12,16 +12,17 @@ import {
   Star,
   Check,
 } from "lucide-react";
-import { Genre, Movie, Profile, User } from "../../../../../utils/interface";
-import { fetcher } from "../../../../../utils/fetcher";
+import { Genre, Movie, Profile, User } from "../../../../../../utils/interface";
+import { fetcher } from "../../../../../../utils/fetcher";
 import VideoPlayer from "@/components/movie/video-player";
 import Header from "@/components/header/header";
-import parseJwt from "../../../../../utils/token";
+import parseJwt from "../../../../../../utils/token";
 import Cookies from "js-cookie";
 import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/ui/loading";
 import { useNotifications } from "@/contexts/use_notification-context";
+import { typeNotification } from "../../../../../../utils/enum";
 export default function WatchPage() {
   const router = useRouter();
   const params = useParams();
@@ -34,7 +35,7 @@ export default function WatchPage() {
   const [myList, setMyList] = useState<string[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const { notifyAddToMyList, notifyRemoveFromMyList } = useNotifications();
+  const { addNotification } = useNotifications();
   useEffect(() => {
     const profileData = localStorage.getItem("selectedProfile");
     const parsedCookie = parseJwt(Cookies.get("accessToken") || "");
@@ -94,7 +95,10 @@ export default function WatchPage() {
           message: "Đã xóa khỏi danh sách",
           description: "Phim đã được xóa khỏi danh sách của bạn.",
         });
-        await notifyRemoveFromMyList(
+        await addNotification(
+          "Đã xóa khỏi danh sách",
+          "Phim đã được xóa khỏi danh sách của bạn.",
+          typeNotification.WARNING,
           movie!.id,
           movie!.title,
           movie!.thumbnailUrl
@@ -112,7 +116,14 @@ export default function WatchPage() {
           message: "Đã thêm vào danh sách",
           description: "Phim đã được thêm vào danh sách của bạn.",
         });
-        await notifyAddToMyList(movie!.id, movie!.title, movie!.thumbnailUrl);
+        await addNotification(
+          "Đã thêm vào danh sách",
+          "Phim đã được thêm vào danh sách của bạn.",
+          typeNotification.SUCCESS,
+          movie!.id,
+          movie!.title,
+          movie!.thumbnailUrl
+        );
         setMyList([...(myList || []), movieId]);
       }
     } catch (error: any) {

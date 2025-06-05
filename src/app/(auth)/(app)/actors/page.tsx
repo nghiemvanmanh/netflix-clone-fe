@@ -12,21 +12,16 @@ import Header from "@/components/header/header";
 import { Actor, User } from "../../../../utils/interface";
 import PersonCard from "@/components/PersonCard";
 import Loading from "@/components/ui/loading";
+import { useUser } from "@/contexts/user-provider";
 export default function ActorsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingActor, setEditingActor] = useState<Actor | null>(null);
   const router = useRouter();
   const [actors, setActors] = useState<Actor[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
-    const userData = Cookies.get("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
-    } else {
-      router.push("/login");
-    }
     fetchActors();
   }, [router]);
   const fetchActors = async () => {

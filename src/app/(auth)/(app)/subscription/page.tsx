@@ -16,7 +16,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, Star, Crown, Zap, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { loadStripe } from "@stripe/stripe-js";
-import { fetcher } from "../../../../utils/fetcher";
+import { fetcher } from "../../../../../utils/fetcher";
 import Cookies from "js-cookie";
 import Loading from "@/components/ui/loading";
 import { motion } from "framer-motion";
