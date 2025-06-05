@@ -6,13 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
 
 import ActorModal from "@/components/actor/actor-modal";
-import Cookies from "js-cookie";
-import { fetcher } from "../../../../utils/fetcher";
 import Header from "@/components/header/header";
-import { Actor, User } from "../../../../utils/interface";
 import PersonCard from "@/components/PersonCard";
 import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
+import { Actor } from "../../../../../utils/interface";
+import { fetcher } from "../../../../../utils/fetcher";
 export default function ActorsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

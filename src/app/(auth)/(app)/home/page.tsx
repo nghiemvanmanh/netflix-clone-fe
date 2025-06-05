@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { fetcher } from "../../../../utils/fetcher";
-import { Movie } from "../../../../utils/interface";
+import { fetcher } from "../../../../../utils/fetcher";
+import { Movie } from "../../../../../utils/interface";
 import Header from "@/components/header/header";
 import MovieCard from "@/components/movie/MovieCard";
 import { FeaturedMovie } from "@/components/movie/FeatureMovie";
