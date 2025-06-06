@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DirectorModal from "@/components/director/director-modal";
-import Cookies from "js-cookie";
 import { Director, User } from "../../../../../utils/interface";
 import { fetcher } from "../../../../../utils/fetcher";
 import Header from "@/components/header/header";

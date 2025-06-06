@@ -54,9 +54,9 @@ export default function SubscriptionSuccessPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center gap-2">
         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-        <div className="text-white text-xl "> Đang xác thực thanh toán...</div>
+        <div className="text-white text-xl ">Đang xác thực thanh toán...</div>
       </div>
     );
   }
@@ -125,17 +125,15 @@ export default function SubscriptionSuccessPage() {
               </div>
 
               <div className="space-y-2 text-sm text-gray-400">
-                {paymentData.planText.map(
-                  (feature: string, index: number) => (
-                    <div
-                      key={index}
-                      className="flex items-center space-x-2 w-full justify-center"
-                    >
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-white">{feature}</span>
-                    </div>
-                  )
-                )}
+                {paymentData.planText.map((feature: string, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center space-x-2 w-full justify-center"
+                  >
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-sm text-white">{feature}</span>
+                  </div>
+                ))}
               </div>
               <motion.div
                 whileHover={{ scale: 1.05 }}

@@ -8,10 +8,9 @@ import ReactQueryProvider from "@/contexts/react-query-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Netflix Clone",
-  description: "A Netflix clone built with Next.js",
+  title: "Netflop",
+  description: "A Netflop built with Next.js",
 };
-
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="vi">

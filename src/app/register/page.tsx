@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, KeyboardEvent } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
@@ -7,8 +7,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { notification, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import Loading from "@/components/ui/loading";
 import { fetcher } from "../../../utils/fetcher";
+import OtpInput from "react-otp-input";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -22,9 +22,8 @@ export default function RegisterPage() {
 
   // Verification step
   const [isVerificationStep, setIsVerificationStep] = useState(false);
-  const [verificationCode, setVerificationCode] = useState(Array(6).fill(""));
+  const [verificationCode, setVerificationCode] = useState("");
   const [verificationError, setVerificationError] = useState("");
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const router = useRouter();
 
@@ -33,13 +32,13 @@ export default function RegisterPage() {
     setError("");
     setVerificationError("");
     try {
-      await fetcher.post("/users/send-code", { email });
+      await fetcher.post("/users/send-code", { email, phoneNumber, password });
       notification.success({
         message: "Mã xác nhận đã được gửi",
         description: "Vui lòng kiểm tra email của bạn để lấy mã xác nhận.",
       });
       setIsVerificationStep(true);
-      setVerificationCode(Array(6).fill(""));
+      setVerificationCode("");
     } catch (err: any) {
       console.error("Send code error:", err);
       setError(
@@ -51,49 +50,8 @@ export default function RegisterPage() {
     }
   };
 
-  const handleVerificationCodeChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // Only allow digits
-
-    const newCode = [...verificationCode];
-    newCode[index] = value;
-    setVerificationCode(newCode);
-
-    // Move to next input if value is entered
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
-      // Move to previous input on backspace if current input is empty
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData
-      .getData("text")
-      .slice(0, 6)
-      .replace(/\D/g, "");
-    const newCode = [...verificationCode];
-
-    for (let i = 0; i < pastedData.length; i++) {
-      if (i < 6) newCode[i] = pastedData[i];
-    }
-
-    setVerificationCode(newCode);
-    if (pastedData.length > 0) {
-      const lastIndex = Math.min(pastedData.length - 1, 5);
-      inputRefs.current[lastIndex]?.focus();
-    }
-  };
-
   const verifyCode = async () => {
-    const code = verificationCode.join("");
-    console.log({ verificationCode });
-    if (code.length < 6) {
+    if (verificationCode.length < 6) {
       setVerificationError("Vui lòng nhập đủ 6 chữ số mã xác nhận");
       return;
     }
@@ -104,7 +62,7 @@ export default function RegisterPage() {
         email,
         phoneNumber,
         password,
-        verificationCode: code,
+        verificationCode,
       });
 
       notification.success({
@@ -134,10 +92,6 @@ export default function RegisterPage() {
     sendVerificationCode();
   };
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
   return (
     <div className="min-h-screen bg-black relative text-white font-sans overflow-hidden">
       <div className="absolute inset-0 z-10">
@@ -152,7 +106,7 @@ export default function RegisterPage() {
       <div className="absolute inset-0 bg-black bg-opacity-70" />
       <div className="relative z-10 px-6 py-4">
         <div className="text-red-600 text-4xl font-extrabold tracking-wide select-none">
-          NETFLIX
+          NETFLOP
         </div>
       </div>
       <div className="relative z-10 flex justify-center items-center min-h-[calc(100vh-64px)] px-4">
@@ -184,7 +138,7 @@ export default function RegisterPage() {
               />
               <Input
                 type="tel"
-                placeholder="Số điện thoại"
+                placeholder="Số điện thoại +84"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="bg-zinc-800 text-white placeholder-gray-400 border border-transparent focus:ring-2 focus:ring-red-600 focus:outline-none w-full"
@@ -243,30 +197,25 @@ export default function RegisterPage() {
             </form>
           ) : (
             <div className="space-y-6">
-              <div className="flex justify-between gap-2" onPaste={handlePaste}>
-                {verificationCode.map((digit, index) => (
+              <OtpInput
+                value={verificationCode}
+                onChange={setVerificationCode}
+                numInputs={6}
+                inputType="number"
+                shouldAutoFocus
+                renderInput={(props) => (
                   <input
-                    key={index}
-                    ref={(el) => {
-                      inputRefs.current[index] = el;
-                    }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) =>
-                      handleVerificationCodeChange(index, e.target.value)
-                    }
-                    onKeyDown={(e) => handleKeyDown(index, e)}
-                    className="w-12 h-12 sm:w-14 sm:h-14 text-center text-lg sm:text-xl bg-zinc-800 text-white rounded border border-gray-600 focus:ring-2 focus:ring-red-600 outline-none"
-                    aria-label={`Mã xác nhận số ${index}`}
+                    {...props}
+                    className="!w-12 h-12 sm:w-14 sm:h-14 text-center text-lg sm:text-xl bg-zinc-800 text-white rounded border border-gray-600 focus:ring-2 focus:ring-red-600 outline-none"
+                    aria-label="Mã xác nhận"
                   />
-                ))}
-              </div>
+                )}
+                containerStyle="flex justify-between gap-2"
+              />
 
               <Button
                 onClick={verifyCode}
-                disabled={verificationCode.join("").length < 6 || isLoading}
+                disabled={verificationCode.length < 6 || isLoading}
                 className="w-full bg-red-600 hover:bg-red-700 transition-colors font-semibold py-3 flex justify-center items-center gap-2"
               >
                 {isLoading ? "Đang xác nhận..." : "Xác nhận"}
@@ -284,7 +233,7 @@ export default function RegisterPage() {
               <Button
                 onClick={() => {
                   setIsVerificationStep(false);
-                  setVerificationCode(Array(6).fill(""));
+                  setVerificationCode("");
                 }}
                 className="w-full bg-transparent border border-gray-500 hover:bg-gray-700 transition-colors text-white py-3"
               >
@@ -302,13 +251,12 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <div className="mt-4 text-xs text-gray-500 text-center px-4 sm:px-0">
-            Trang này được Google reCAPTCHA bảo vệ để đảm bảo bạn không phải là
-            robot.{" "}
-            <a href="#" className="text-blue-500 hover:underline">
-              Tìm hiểu thêm.
-            </a>
-          </div>
+          {isVerificationStep && (
+            <div className="mt-6 text-center text-gray-400 text-xs">
+              Nếu không nhận được mã, vui lòng kiểm tra lại email hoặc thử gửi
+              lại.
+            </div>
+          )}
         </div>
       </div>
     </div>

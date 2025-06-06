@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Star,
   Check,
+  Loader2,
 } from "lucide-react";
 import { Movie } from "../../../../../../utils/interface";
 import { fetcher } from "../../../../../../utils/fetcher";
@@ -23,28 +24,25 @@ import { useNotifications } from "@/contexts/use_notification-context";
 import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
 import { typeNotification } from "../../../../../../utils/enum";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import { formatTime } from "@/constants/date";
 import Loading from "@/components/ui/loading";
 import { DeleteOutlined } from "@ant-design/icons";
+import { useMyListHandler } from "@/hooks/use-toggle-mylist";
 export default function MovieDetailPage() {
   const router = useRouter();
   const params = useParams();
   const movieId = params.id as string;
   const [myList, setMyList] = useState<string[]>([]);
-  const { addNotification } = useNotifications();
   const { user } = useUser();
   const { profile } = useProfile();
   const commentRef = useRef<HTMLTextAreaElement>(null);
-
-  const { data: comments, refetch: refetchComments } = useQuery({
-    queryKey: ["comments", movieId],
-    queryFn: () => {
-      return fetcher.get(`/reviews/movies/${movieId}`).then((res) => res.data);
-    },
-    refetchOnWindowFocus: false,
+  const { handleToggleMyList, isLoading } = useMyListHandler({
+    userId: user?.id,
+    profileId: profile?.id,
+    myList,
+    setMyList,
   });
-
   const results = useQueries({
     queries: [
       {
@@ -59,10 +57,24 @@ export default function MovieDetailPage() {
           fetcher.get(`/movies/${movieId}`).then((res) => res.data),
         refetchOnWindowFocus: false,
       },
+      {
+        queryKey: ["comments", movieId],
+        queryFn: () => {
+          return fetcher
+            .get(`/reviews/movies/${movieId}`)
+            .then((res) => res.data);
+        },
+        refetchOnWindowFocus: false,
+      },
     ],
   });
   const similarMovies: Movie[] = results[0].data;
   const movie: Movie = results[1].data;
+  const comments = results[2].data;
+  const refetchComments = () => {
+    results[2].refetch();
+  };
+
   useEffect(() => {
     const fetchMyList = async () => {
       if (user?.id && profile?.id) {
@@ -76,60 +88,6 @@ export default function MovieDetailPage() {
     fetchMyList();
   }, [movieId]);
 
-  const handleToggleMyList = async (movieId: string) => {
-    const isInList = myList?.includes(movieId);
-    try {
-      if (isInList) {
-        // TODO: Remove from My List API call
-        await fetcher.delete(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists/${movieId}`
-        );
-        notification.warning({
-          message: "Đã xóa khỏi danh sách",
-          description: "Phim đã được xóa khỏi danh sách của bạn.",
-        });
-        await addNotification(
-          "Đã xóa khỏi danh sách",
-          "Phim đã được xóa khỏi danh sách của bạn.",
-          typeNotification.WARNING,
-          movie!.id,
-          movie!.title,
-          movie!.thumbnailUrl
-        );
-        setMyList((myList || []).filter((id) => id !== movieId));
-      } else {
-        // TODO: Add to My List API call
-        await fetcher.post(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists`,
-          {
-            movieId,
-          }
-        );
-        notification.success({
-          message: "Đã thêm vào danh sách",
-          description: "Phim đã được thêm vào danh sách của bạn.",
-        });
-        await addNotification(
-          "Đã thêm vào danh sách",
-          "Phim đã được thêm vào danh sách của bạn.",
-          typeNotification.SUCCESS,
-          movie!.id,
-          movie!.title,
-          movie!.thumbnailUrl
-        );
-        setMyList([...(myList || []), movieId]);
-      }
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        "Có lỗi xảy ra khi thêm vào danh sách";
-
-      notification.warning({
-        message: "Thông báo",
-        description: message,
-      });
-    }
-  };
   const handlePlay = () => {
     router.push(`/watch/${movieId}`);
   };
@@ -249,11 +207,25 @@ export default function MovieDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
+                  disabled={isLoading}
                   className="border-gray-400 text-black cursor-pointer hover:border-white"
-                  onClick={() => handleToggleMyList(movieId)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleMyList(movie);
+                  }}
                 >
                   <AnimatePresence mode="wait" initial={false}>
-                    {myList?.includes(movieId) ? (
+                    {isLoading ? (
+                      <motion.div
+                        key="loader"
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.5 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      </motion.div>
+                    ) : myList?.includes(movieId) ? (
                       <motion.div
                         key="check"
                         initial={{ opacity: 0, rotate: -180, scale: 0.3 }}

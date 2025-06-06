@@ -16,10 +16,11 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Trash2, AlertTriangle } from "lucide-react";
 import { notification } from "antd";
-import { Profile, User } from "../../../../utils/interface";
+import { Profile } from "../../../../utils/interface";
 import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
 import { useQuery } from "@tanstack/react-query";
+import { handleSignOut } from "@/helpers/logout";
 
 export default function ProfilesPage() {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -78,7 +79,11 @@ export default function ProfilesPage() {
     }
   };
   const handleProfileSelect = (profile: Profile) => {
-    localStorage.setItem("selectedProfile", JSON.stringify(profile));
+    const { id, name, avatarUrl, isKids } = profile;
+    Cookies.set(
+      "selectedProfile",
+      JSON.stringify({ id, name, avatarUrl, isKids })
+    );
     router.push("/home");
   };
 
@@ -168,10 +173,7 @@ export default function ProfilesPage() {
             variant="outline"
             className="border-gray-600 text-black hover:border-white cursor-pointer"
             onClick={() => {
-              Cookies.remove("user");
-              Cookies.remove("accessToken");
-              Cookies.remove("refreshToken");
-              router.push("/login");
+              handleSignOut(Cookies, router);
             }}
           >
             Sign Out

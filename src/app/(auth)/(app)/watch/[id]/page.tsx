@@ -11,6 +11,7 @@ import {
   Share,
   Star,
   Check,
+  Loader2,
 } from "lucide-react";
 import { Genre, Movie, Profile, User } from "../../../../../../utils/interface";
 import { fetcher } from "../../../../../../utils/fetcher";
@@ -26,16 +27,21 @@ import { typeNotification } from "../../../../../../utils/enum";
 import { useQueries } from "@tanstack/react-query";
 import { useProfile } from "@/contexts/use-profile";
 import { useUser } from "@/contexts/user-provider";
+import { useMyListHandler } from "@/hooks/use-toggle-mylist";
 export default function WatchPage() {
   const router = useRouter();
   const params = useParams();
   const movieId = params.id as string;
-
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [myList, setMyList] = useState<string[]>([]);
-  const { addNotification } = useNotifications();
   const { user } = useUser();
   const { profile } = useProfile();
+  const { handleToggleMyList, isLoading } = useMyListHandler({
+    userId: user?.id,
+    profileId: profile?.id,
+    myList,
+    setMyList,
+  });
   const results = useQueries({
     queries: [
       {
@@ -68,60 +74,6 @@ export default function WatchPage() {
     fetchMyList();
   }, [movieId, router]);
 
-  const handleToggleMyList = async (movieId: string) => {
-    const isInList = myList?.includes(movieId);
-    try {
-      if (isInList) {
-        // TODO: Remove from My List API call
-        await fetcher.delete(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists/${movieId}`
-        );
-        notification.warning({
-          message: "Đã xóa khỏi danh sách",
-          description: "Phim đã được xóa khỏi danh sách của bạn.",
-        });
-        await addNotification(
-          "Đã xóa khỏi danh sách",
-          "Phim đã được xóa khỏi danh sách của bạn.",
-          typeNotification.WARNING,
-          movie!.id,
-          movie!.title,
-          movie!.thumbnailUrl
-        );
-        setMyList((myList || []).filter((id) => id !== movieId));
-      } else {
-        // TODO: Add to My List API call
-        await fetcher.post(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists`,
-          {
-            movieId,
-          }
-        );
-        notification.success({
-          message: "Đã thêm vào danh sách",
-          description: "Phim đã được thêm vào danh sách của bạn.",
-        });
-        await addNotification(
-          "Đã thêm vào danh sách",
-          "Phim đã được thêm vào danh sách của bạn.",
-          typeNotification.SUCCESS,
-          movie!.id,
-          movie!.title,
-          movie!.thumbnailUrl
-        );
-        setMyList([...(myList || []), movieId]);
-      }
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        "Có lỗi xảy ra khi thêm vào danh sách";
-
-      notification.warning({
-        message: "Thông báo",
-        description: message,
-      });
-    }
-  };
   if (loading) {
     return <Loading />;
   }
@@ -193,10 +145,20 @@ export default function WatchPage() {
               <Button
                 variant="outline"
                 className="border-gray-400 text-black cursor-pointer hover:border-white"
-                onClick={() => handleToggleMyList(movieId)}
+                onClick={() => handleToggleMyList(movie)}
               >
                 <AnimatePresence mode="wait" initial={false}>
-                  {myList?.includes(movieId) ? (
+                  {isLoading ? (
+                    <motion.div
+                      key="loading"
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    </motion.div>
+                  ) : myList?.includes(movieId) ? (
                     <motion.div
                       key="check"
                       initial={{ opacity: 0, rotate: -180, scale: 0.3 }}
@@ -204,7 +166,7 @@ export default function WatchPage() {
                       exit={{ opacity: 0, rotate: 180, scale: 0.3 }}
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
-                      <Check className="w-5 h-5" />
+                      <Check className="w-5 h-5 mr-2" />
                     </motion.div>
                   ) : (
                     <motion.div
@@ -214,7 +176,7 @@ export default function WatchPage() {
                       exit={{ opacity: 0, rotate: -180, scale: 0.3 }}
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
-                      <Plus className="w-5 h-5" />
+                      <Plus className="w-5 h-5 mr-2" />
                     </motion.div>
                   )}
                 </AnimatePresence>

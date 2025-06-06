@@ -18,8 +18,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     const userData = Cookies.get("accessToken");
     if (userData) {
       setUser(parseJwt(userData));
-    } else {
-      router.push("/login");
     }
   }, []);
 

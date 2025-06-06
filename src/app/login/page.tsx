@@ -11,7 +11,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import parseJwt from "../../../utils/token";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +18,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -32,13 +32,7 @@ export default function LoginPage() {
 
       Cookies.set("accessToken", response.data.accessToken);
       Cookies.set("refreshToken", response.data.refreshToken);
-      Cookies.set("user", JSON.stringify(response.data.user));
-      if (response.data.user.isActive) {
-        router.push("/profiles");
-      } else {
-        router.push("/subscription");
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      router.push("/profiles");
     } catch (error: any) {
       setError(
         error.response?.data?.message || "Email hoặc mật khẩu không đúng"
@@ -70,7 +64,7 @@ export default function LoginPage() {
       {/* Header Logo */}
       <div className="relative z-10 px-6 py-4">
         <div className="text-red-600 text-4xl font-extrabold tracking-wide">
-          NETFLIX
+          NETFLOP
         </div>
       </div>
 

@@ -1,24 +1,10 @@
 "use client";
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 export default function HomePage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to demo page instead of login
-    const profile = localStorage.getItem("profile");
-    if (profile) {
-      router.push("/home");
-      return;
-    }
-    router.push("/login");
-  }, [router]);
-
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="min-h-screen bg-black flex items-center justify-center gap-2">
+      <div className="animate-spin border-t-2 border-white rounded-full w-12 h-12"></div>
       <div className="text-white text-xl">
         Redirecting... <Spin indicator={<LoadingOutlined spin />} />
       </div>

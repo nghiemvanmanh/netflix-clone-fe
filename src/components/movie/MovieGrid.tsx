@@ -1,5 +1,5 @@
 // components/MovieCard.tsx
-import { Play, Info, Edit, Trash2, Plus, Check } from "lucide-react";
+import { Play, Info, Edit, Trash2, Plus, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Movie } from "../../../utils/interface";
 import Image from "next/image";
@@ -12,6 +12,7 @@ import { useNotifications } from "@/contexts/use_notification-context";
 import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
 import { typeNotification } from "../../../utils/enum";
+import { useMyListHandler } from "@/hooks/use-toggle-mylist";
 type Props = {
   movie: Movie;
   isAdmin?: boolean;
@@ -21,66 +22,16 @@ type Props = {
 
 export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
   const router = useRouter();
-
-  const [myList, setMyList] = useState<string[] | null>(null);
+  const [myList, setMyList] = useState<string[]>([]);
   const { user } = useUser();
   const { profile } = useProfile();
-  const { addNotification } = useNotifications();
-  const handleToggleMyList = async (movieId: string) => {
-    const isInList = myList?.includes(movieId);
-    try {
-      if (isInList) {
-        // TODO: Remove from My List API call
-        await fetcher.delete(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists/${movieId}`
-        );
-        notification.warning({
-          message: "Đã xóa khỏi danh sách",
-          description: "Phim đã được xóa khỏi danh sách của bạn.",
-        });
-        await addNotification(
-          "Đã xóa khỏi danh sách",
-          "Phim đã được xóa khỏi danh sách của bạn.",
-          typeNotification.WARNING,
-          movie.id,
-          movie.title,
-          movie.thumbnailUrl
-        );
-        setMyList((myList || []).filter((id) => id !== movieId));
-      } else {
-        // TODO: Add to My List API call
-        await fetcher.post(
-          `/users/${user?.id}/profiles/${profile?.id}/my-lists`,
-          {
-            movieId,
-          }
-        );
-        notification.success({
-          message: "Đã thêm vào danh sách",
-          description: "Phim đã được thêm vào danh sách của bạn.",
-        });
-        await addNotification(
-          "Đã thêm vào danh sách",
-          "Phim đã được thêm vào danh sách của bạn.",
-          typeNotification.SUCCESS,
-          movie.id,
-          movie.title,
-          movie.thumbnailUrl
-        );
-        // Update local state
-        setMyList([...(myList || []), movieId]);
-      }
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        "Có lỗi xảy ra khi thêm vào danh sách";
+  const { handleToggleMyList, isLoading } = useMyListHandler({
+    userId: user?.id,
+    profileId: profile?.id,
+    myList,
+    setMyList,
+  });
 
-      notification.error({
-        message: "Lỗi",
-        description: message,
-      });
-    }
-  };
   const handlePlayMovie = (movieId: string) => {
     router.push(`/watch/${movieId}`);
   };
@@ -133,11 +84,25 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
             <Button
               size="sm"
               variant="outline"
+              disabled={isLoading}
               className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer overflow-hidden"
-              onClick={() => handleToggleMyList(movie.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleMyList(movie);
+              }}
             >
               <AnimatePresence mode="wait" initial={false}>
-                {myList?.includes(movie.id) ? (
+                {isLoading ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </motion.div>
+                ) : myList?.includes(movie.id) ? (
                   <motion.div
                     key="check"
                     initial={{ opacity: 0, rotate: -180, scale: 0.3 }}

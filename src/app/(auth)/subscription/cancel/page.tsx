@@ -69,7 +69,7 @@ export default function SubscriptionCancelPage() {
 
               <p className="text-xs text-gray-500">
                 Cần hỗ trợ? Liên hệ với chúng tôi qua email:
-                admin@netflix-clone.com
+                admin@netflop.com
               </p>
             </CardContent>
           </Card>

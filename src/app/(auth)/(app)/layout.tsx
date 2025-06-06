@@ -7,8 +7,8 @@ import { ProfileProvider } from "@/contexts/use-profile";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Netflix Clone",
-  description: "A Netflix clone built with Next.js",
+  title: "Netflop",
+  description: "A Netflop built with Next.js",
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {

@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Profile } from "../../utils/interface";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 const ProfileContext = createContext<{
   profile: Profile | null;
   setProfile: React.Dispatch<React.SetStateAction<Profile | null>>;
@@ -18,11 +19,9 @@ export const ProfileProvider = ({ children }: PropsWithChildren) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const router = useRouter();
   useEffect(() => {
-    const stored = localStorage.getItem("selectedProfile");
+    const stored = Cookies.get("selectedProfile");
     if (stored) {
       setProfile(JSON.parse(stored));
-    } else {
-      router.push("/profiles");
     }
   }, []);
 

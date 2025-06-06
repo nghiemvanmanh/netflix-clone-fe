@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 import { useUser } from "@/contexts/user-provider";
 import { SUBPLAN_OPTIONS } from "@/constants/common";
 import Image from "next/image";
+import { handleSignOut } from "@/helpers/logout";
 // Initialize Stripe
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -158,10 +159,7 @@ export default function SubscriptionPage() {
             variant="outline"
             className="border-gray-600 text-gray-800 hover:text-gray-900 hover:border-white cursor-pointer z-10"
             onClick={() => {
-              Cookies.remove("user");
-              Cookies.remove("accessToken");
-              Cookies.remove("refreshToken");
-              router.push("/login");
+              handleSignOut(Cookies, router);
             }}
           >
             Đăng xuất

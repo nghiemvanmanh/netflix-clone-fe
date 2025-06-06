@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Play, Plus, Info, Check } from "lucide-react";
+import { Play, Plus, Info, Check, Loader2 } from "lucide-react";
 import { Movie } from "../../../utils/interface";
 import { useEffect, useState } from "react";
 import { fetcher } from "../../../utils/fetcher";
@@ -31,11 +31,12 @@ export default function MovieCard({
   const { addNotification } = useNotifications();
   const { user } = useUser();
   const { profile } = useProfile();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
 
   const handleToggleMyList = async (movieId: string) => {
     const isInList = myList?.includes(movieId);
+    setIsLoading(true);
     try {
       if (isInList) {
         if (isMyList) {
@@ -147,6 +148,8 @@ export default function MovieCard({
         message: "Lỗi",
         description: message,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -217,6 +220,7 @@ export default function MovieCard({
                 <Button
                   size="sm"
                   variant="outline"
+                  disabled={isLoading}
                   className="w-8 h-8 rounded-full border-gray-400 text-black hover:border-white p-0 cursor-pointer overflow-hidden"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -224,7 +228,17 @@ export default function MovieCard({
                   }}
                 >
                   <AnimatePresence mode="wait" initial={false}>
-                    {myList?.includes(movie.id) ? (
+                    {isLoading ? (
+                      <motion.div
+                        key="loading"
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.5 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </motion.div>
+                    ) : myList?.includes(movie.id) ? (
                       <motion.div
                         key="check"
                         initial={{ opacity: 0, rotate: -180, scale: 0.3 }}

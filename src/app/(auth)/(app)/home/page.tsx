@@ -105,7 +105,7 @@ export default function HomePage() {
                 1280: { slidesPerView: 5 },
               }}
             >
-              {movies.map((movie) => (
+              {movies.map((movie: Movie) => (
                 <SwiperSlide className="hover:z-50" key={movie.id}>
                   <MovieCard
                     movie={movie}
@@ -119,7 +119,7 @@ export default function HomePage() {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold mb-6">Phổ biến trên Netflix</h2>
+            <h2 className="text-2xl font-bold mb-6">Phổ biến trên Netflop</h2>
 
             <Swiper
               className="!overflow-visible"
@@ -143,7 +143,7 @@ export default function HomePage() {
               {movies
                 .slice()
                 .reverse()
-                .map((movie) => (
+                .map((movie: Movie) => (
                   <SwiperSlide className=" hover:z-50" key={movie.id}>
                     <MovieCard
                       movie={movie}

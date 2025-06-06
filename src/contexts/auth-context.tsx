@@ -2,31 +2,22 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import { message } from "antd";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { fetcher } from "../../utils/fetcher";
 
-interface AuthContextType {
+const AuthContext = React.createContext<{
   isAuthenticated: boolean;
   refreshToken: () => Promise<void>;
-  logout: () => void;
-}
+} | null>(null);
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!Cookies.get("accessToken")
-  );
-  const router = useRouter();
+export const AuthProvider = ({ children }: React.PropsWithChildren) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Cập nhật trạng thái xác thực khi token thay đổi
     const accessToken = Cookies.get("accessToken");
     setIsAuthenticated(!!accessToken);
-  }, []);
+  }, [pathname]); // kiểm tra lại mỗi khi đổi route
 
   const refreshToken = async () => {
     const refreshToken = Cookies.get("refreshToken");
@@ -36,11 +27,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       const response = await fetcher.post("/auth/refresh", { refreshToken });
-      const { accessToken } = response.data; // Chỉ lấy accessToken vì backend không trả refreshToken mới
-      Cookies.set("accessToken", accessToken, {
-        secure: true,
-        sameSite: "strict",
-      });
+      const { accessToken } = response.data;
+      Cookies.set("accessToken", accessToken);
       setIsAuthenticated(true);
     } catch (error) {
       Cookies.remove("accessToken");
@@ -50,20 +38,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const logout = () => {
-    Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    setIsAuthenticated(false);
-    router.push("/login");
-    message.success("Đăng xuất thành công");
-  };
-
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
         refreshToken,
-        logout,
       }}
     >
       {children}
@@ -78,5 +57,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-export default AuthContext;

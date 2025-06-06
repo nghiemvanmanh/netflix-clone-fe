@@ -1,24 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2 } from "lucide-react";
-
+import { Plus } from "lucide-react";
 import ActorModal from "@/components/actor/actor-modal";
 import Header from "@/components/header/header";
 import PersonCard from "@/components/PersonCard";
-import Loading from "@/components/ui/loading";
+
 import { useUser } from "@/contexts/user-provider";
 import { Actor } from "../../../../../utils/interface";
 import { fetcher } from "../../../../../utils/fetcher";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "@/app/loading";
 
 export default function ActorsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingActor, setEditingActor] = useState<Actor | null>(null);
-  const router = useRouter();
-
+  const [isClient, setIsClient] = useState(true);
   const { user } = useUser();
   const {
     data: actors,
@@ -31,7 +29,9 @@ export default function ActorsPage() {
     },
     initialData: [],
   });
-
+  useEffect(() => {
+    setIsClient(false);
+  }, []);
   const handleAddActor = () => {
     setEditingActor(null);
     setShowModal(true);
@@ -66,7 +66,7 @@ export default function ActorsPage() {
     setShowModal(false);
   };
 
-  if (loading) {
+  if (isClient || loading) {
     return <Loading />;
   }
 

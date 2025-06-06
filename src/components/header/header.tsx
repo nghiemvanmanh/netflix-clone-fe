@@ -33,6 +33,7 @@ import NotificationCenter from "../notification/NotificationCenter";
 import { useNotifications } from "@/contexts/use_notification-context";
 import { useProfile } from "@/contexts/use-profile";
 import { useUser } from "@/contexts/user-provider";
+import { handleSignOut } from "@/helpers/logout";
 export default function Header() {
   const router = useRouter();
   const [showSearch, setShowSearch] = useState(false);
@@ -62,16 +63,8 @@ export default function Header() {
     fetchData();
   }, [router]);
 
-  const handleSignOut = () => {
-    Cookies.remove("user");
-    Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    localStorage.removeItem("selectedProfile");
-    router.push("/login");
-  };
-
   const handleSwitchProfile = () => {
-    localStorage.removeItem("selectedProfile");
+    Cookies.remove("selectedProfile");
     router.push("/profiles");
   };
 
@@ -165,7 +158,7 @@ export default function Header() {
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center space-x-8">
             <h1 className="text-2xl font-bold text-red-600">
-              <a href="/home">NETFLIX</a>
+              <a href="/home">NETFLOP</a>
             </h1>
             {/* Menu lớn (desktop) */}
             <nav className="hidden md:flex space-x-6">
@@ -241,7 +234,9 @@ export default function Header() {
                 <DropdownMenuItem onClick={handleSwitchProfile}>
                   Switch Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut}>
+                <DropdownMenuItem
+                  onClick={() => handleSignOut(Cookies, router)}
+                >
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
