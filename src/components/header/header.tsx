@@ -215,7 +215,7 @@ export default function Header() {
                   <div className="w-8 h-8 rounded overflow-hidden bg-gray-700">
                     {profile?.avatarUrl ? (
                       <Image
-                        src={profile.avatarUrl || "/placeholder.svg"}
+                        src={profile.avatarUrl}
                         width={100}
                         height={100}
                         alt={profile.name}

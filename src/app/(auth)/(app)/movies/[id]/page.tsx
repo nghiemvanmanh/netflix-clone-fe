@@ -13,6 +13,7 @@ import {
   Star,
   Check,
   Loader2,
+  User,
 } from "lucide-react";
 import { Movie } from "../../../../../../utils/interface";
 import { fetcher } from "../../../../../../utils/fetcher";
@@ -29,6 +30,7 @@ import { formatTime } from "@/constants/date";
 import Loading from "@/components/ui/loading";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useMyListHandler } from "@/hooks/use-toggle-mylist";
+import { Comment } from "@/components/movie/Comment";
 export default function MovieDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -36,7 +38,7 @@ export default function MovieDetailPage() {
   const [myList, setMyList] = useState<string[]>([]);
   const { user } = useUser();
   const { profile } = useProfile();
-  const commentRef = useRef<HTMLTextAreaElement>(null);
+
   const { handleToggleMyList, isLoading } = useMyListHandler({
     userId: user?.id,
     profileId: profile?.id,
@@ -376,101 +378,12 @@ export default function MovieDetailPage() {
                 </div>
               </div>
               {/* Comments Section */}
-              <div className="bg-gradient-to-br from-gray-800 to-black rounded-lg p-8 mb-8 border border-gray-700 shadow-xl shadow-black/30">
-                <h2 className="text-2xl font-bold mb-6">Bình luận</h2>
-
-                {/* Comments List */}
-                <div className="space-y-6 mb-8">
-                  {/* TODO: Replace with real API call */}
-                  {/*  */}
-                  {comments?.map((comment: any) => (
-                    <div
-                      key={comment.id}
-                      className="bg-gray-800 rounded-lg p-4"
-                    >
-                      <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                          <img
-                            src={
-                              comment.profile.avatarUrl || "/placeholder.svg"
-                            }
-                            alt={comment.name}
-                            className="w-10 h-10 rounded-full"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium text-white">
-                              {comment.name}
-                            </p>
-                            <span className="text-xs text-gray-400">
-                              {formatTime(new Date(comment.createdAt))}
-                            </span>
-                          </div>
-                          <p className="text-gray-300 mt-1">
-                            {comment.content}
-                          </p>
-                        </div>
-                        {user?.isAdmin && (
-                          <Button
-                            onClick={() => {
-                              if (
-                                confirm(
-                                  "Are you sure you want to delete this comment?"
-                                )
-                              ) {
-                                handleDeleteComment(comment.id);
-                              }
-                            }}
-                          >
-                            <DeleteOutlined />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Add Comment Form */}
-                <div className="bg-gray-800 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold mb-3">Thêm bình luận</h3>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const form = e.target as HTMLFormElement;
-                      const commentInput = form.elements.namedItem(
-                        "comment"
-                      ) as HTMLTextAreaElement;
-                      const comment = commentInput.value.trim();
-
-                      if (comment) {
-                        handleAddComment(comment);
-                        if (commentRef.current) commentRef.current.value = "";
-                      }
-                    }}
-                  >
-                    <textarea
-                      ref={commentRef}
-                      name="comment"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                      rows={3}
-                      placeholder="Chia sẻ suy nghĩ của bạn về bộ phim này..."
-                      required
-                    ></textarea>
-                    <p className="text-gray-400 text-xs mt-1">
-                      Bạn có thể bình luận về nội dung, diễn xuất, đạo diễn...
-                    </p>
-                    <div className="flex justify-end mt-3">
-                      <button
-                        type="submit"
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
-                      >
-                        Đăng
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
+              <Comment
+                comments={comments}
+                user={user}
+                handleAddComment={handleAddComment}
+                handleDeleteComment={handleDeleteComment}
+              />
               {/* Episodes/Seasons (for TV shows)
               {movie.genres.includes("TV") && (
                 <div className="bg-gray-900 rounded-lg p-8">

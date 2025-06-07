@@ -26,9 +26,9 @@ export default function SubscriptionSuccessPage() {
     queryKey: ["verify-payment", sessionId],
     enabled: !!sessionId, // chỉ chạy khi có sessionId
     queryFn: () => {
-      return fetcher.post(
-        `/subscriptions/verify-payment?session_id=${sessionId}`
-      ).then((res) => res.data);
+      return fetcher
+        .post(`/subscriptions/verify-payment?session_id=${sessionId}`)
+        .then((res) => res.data);
     },
   });
 
@@ -55,7 +55,7 @@ export default function SubscriptionSuccessPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center gap-2">
-        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <div className="animate-spin border-t-2 border-white rounded-full w-6 h-6"></div>
         <div className="text-white text-xl ">Đang xác thực thanh toán...</div>
       </div>
     );

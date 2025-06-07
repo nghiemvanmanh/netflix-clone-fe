@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, AlertTriangle, User } from "lucide-react";
 import { notification } from "antd";
 import { Profile } from "../../../../utils/interface";
 import Loading from "@/components/ui/loading";
@@ -100,8 +100,8 @@ export default function ProfilesPage() {
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Who's watching?</h1>
-          <p className="text-gray-400 text-lg">Select a profile to continue</p>
+          <h1 className="text-4xl font-bold mb-4">Ai đang xem?</h1>
+          <p className="text-gray-400 text-lg">Chọn một hồ sơ để tiếp tục</p>
         </div>
 
         <div className="flex justify-center">
@@ -126,7 +126,7 @@ export default function ProfilesPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                        {/* Placeholder for User icon */}
+                        <User className="w-20 h-20 text-white" />
                       </div>
                     )}
                   </div>
@@ -162,7 +162,7 @@ export default function ProfilesPage() {
                 <Plus className="w-12 h-12 text-gray-600 group-hover:text-white transition-colors" />
               </div>
               <span className="text-lg font-medium group-hover:text-white text-gray-300 transition-colors">
-                Add Profile
+                Thêm Hồ Sơ
               </span>
             </div>
           </div>

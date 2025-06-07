@@ -26,7 +26,6 @@ export default function MyListsPage() {
         .get(`/users/${user?.id}/profiles/${profile?.id}/my-lists`)
         .then((res) => res.data);
     },
-    initialData: [],
   });
   useEffect(() => {
     setMyList(myListMovies.map((item: any) => item.movie.id));

@@ -17,6 +17,7 @@ import { User } from "lucide-react";
 import Image from "next/image";
 import { fetcher } from "../../../utils/fetcher";
 import { Profile } from "../../../utils/interface";
+import { notification } from "antd";
 
 interface AddProfileModalProps {
   isOpen: boolean;
@@ -61,6 +62,15 @@ export default function AddProfileModal({
 
       const newProfile = response.data;
       onProfileCreated(newProfile);
+      notification.success({
+        message: "Thêm hồ sơ thành công",
+        description: `Hồ sơ "${newProfile.name}" đã được tạo thành công!`,
+      });
+      setName("");
+      setSelectedAvatar(null);
+      setIsKids(false);
+
+      onClose();
     } catch (error) {
       console.error("Error creating profile:", error);
       alert("Failed to create profile");
@@ -74,14 +84,14 @@ export default function AddProfileModal({
       <DialogContent className="bg-black border-gray-800 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            Add Profile
+            Thêm Hồ Sơ Mới
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Avatar Selection */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Choose Avatar</Label>
+            <Label className="text-sm font-medium">Chọn Avatar</Label>
             <div className="grid grid-cols-3 gap-3">
               {avatarOptions.map((avatar, index) => (
                 <div
@@ -108,7 +118,9 @@ export default function AddProfileModal({
                 <div className="w-20 h-20 mx-auto rounded-lg bg-gray-700 flex items-center justify-center mb-2">
                   <User className="w-10 h-10 text-gray-400" />
                 </div>
-                <p className="text-sm text-gray-400">No avatar selected</p>
+                <p className="text-sm text-gray-400">
+                  Không có avatar được chọn
+                </p>
               </div>
             )}
           </div>
@@ -116,7 +128,7 @@ export default function AddProfileModal({
           {/* Name Input */}
           <div className="space-y-2">
             <Label htmlFor="profileName" className="text-sm font-medium">
-              Profile Name
+              Tên Hồ Sơ
             </Label>
             <Input
               id="profileName"
@@ -124,11 +136,11 @@ export default function AddProfileModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-              placeholder="Enter profile name"
+              placeholder="Nhập tên hồ sơ"
               maxLength={20}
               required
             />
-            <p className="text-xs text-gray-400">{name.length}/20 characters</p>
+            <p className="text-xs text-gray-400">{name.length}/20 ký tự</p>
           </div>
 
           {/* Kids Profile Checkbox */}
@@ -144,7 +156,8 @@ export default function AddProfileModal({
             </Label>
           </div>
           <p className="text-xs text-gray-400 ml-6">
-            Kids profiles only show content rated for ages 12 and under.
+            Kids profiles chỉ hiển thị nội dung được phân loại cho độ tuổi 12
+            trở xuống.
           </p>
 
           {/* Action Buttons */}
@@ -162,7 +175,7 @@ export default function AddProfileModal({
               className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               disabled={loading || !name.trim()}
             >
-              {loading ? "Creating..." : "Create Profile"}
+              {loading ? "Đang tạo..." : "Tạo Hồ Sơ"}
             </Button>
           </div>
         </form>
