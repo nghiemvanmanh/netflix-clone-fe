@@ -45,7 +45,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-black relative text-white font-sans overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0 z-10 w-auto h-auto">
+      <div className="absolute inset-0 z-5 w-auto h-auto">
         <Image
           src="/netflix-background.jpg"
           alt="Netflix Background"

@@ -7,7 +7,6 @@ export function middleware(request: NextRequest) {
   const selectedProfile = request.cookies.get("selectedProfile")?.value;
   const url = request.nextUrl.clone();
   const sessionId = request.nextUrl.searchParams.get("session_id");
-  // Cho phép truy cập công khai các trang này (không cần auth)
 
   // ⛔ Chưa login → redirect login
   if (!accessToken && !["/login", "/register"].includes(pathname)) {
@@ -17,7 +16,13 @@ export function middleware(request: NextRequest) {
   // ✅ Đã login → kiểm tra user
   if (accessToken) {
     const user = parseJwt(accessToken);
+
     const isActive = user?.isActive;
+    const isExpired = user?.exp && user.exp * 1000 < Date.now();
+    if (isExpired) {
+      const loginUrl = new URL("/login", request.url);
+      return NextResponse.redirect(loginUrl);
+    }
     if (
       pathname.startsWith("/subscription/success") ||
       pathname.startsWith("/subscription/cancel")
@@ -54,5 +59,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|public|avatar).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|netflix-background.jpg|avatars).*)"],
 };

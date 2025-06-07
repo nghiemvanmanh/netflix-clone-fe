@@ -11,7 +11,7 @@ import { useUser } from "@/contexts/user-provider";
 import { Actor } from "../../../../../utils/interface";
 import { fetcher } from "../../../../../utils/fetcher";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "@/app/loading";
+import Loading from "@/components/ui/loading";
 
 export default function ActorsPage() {
   const [showModal, setShowModal] = useState(false);
