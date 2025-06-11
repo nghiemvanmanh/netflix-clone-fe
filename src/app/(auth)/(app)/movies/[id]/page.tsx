@@ -139,7 +139,6 @@ export default function MovieDetailPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Header />
 
       {/* Back Button */}
       <BackButton />

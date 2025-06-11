@@ -62,8 +62,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <Header />
       {/* Search Overlay */}
       {/* Featured Content */}
       <AnimatePresence mode="wait">

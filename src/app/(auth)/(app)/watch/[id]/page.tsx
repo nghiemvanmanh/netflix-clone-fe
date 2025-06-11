@@ -28,6 +28,7 @@ import { useQueries } from "@tanstack/react-query";
 import { useProfile } from "@/contexts/use-profile";
 import { useUser } from "@/contexts/user-provider";
 import { useMyListHandler } from "@/hooks/use-toggle-mylist";
+import { BackButton } from "@/components/ui/back-button";
 export default function WatchPage() {
   const router = useRouter();
   const params = useParams();
@@ -88,16 +89,9 @@ export default function WatchPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Header />
       {/* Back Button */}
       <div className="fixed top-6 left-6 z-40 mt-10">
-        <Button
-          variant="ghost"
-          className="bg-black/50 hover:bg-white/50 text-white rounded-full w-12 h-12 p-0 cursor-pointer"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="w-[25px] h-[30px] sm:w-6 sm:h-6" />
-        </Button>
+        <BackButton />
       </div>
 
       {/* Video Player Section */}

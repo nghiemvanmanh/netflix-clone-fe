@@ -5,6 +5,7 @@ import { PropsWithChildren } from "react";
 import { NotificationProvider } from "@/contexts/use_notification-context";
 import { ProfileProvider } from "@/contexts/use-profile";
 import Footer from "@/components/footer/Footer";
+import Header from "@/components/header/header";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <NotificationProvider>
             {" "}
             {/* 👈 Thêm vào đây */}
-            {children} <Footer />
+            <Header /> {children} <Footer />
           </NotificationProvider>
         </ProfileProvider>
       </body>

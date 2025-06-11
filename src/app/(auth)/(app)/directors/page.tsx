@@ -68,8 +68,6 @@ export default function DirectorsPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <Header />
 
       {/* Main Content */}
       <main className="pt-20 px-6 pb-20">
