@@ -21,7 +21,7 @@ import Cookies from "js-cookie";
 import Loading from "@/components/ui/loading";
 import { motion } from "framer-motion";
 import { useUser } from "@/contexts/user-provider";
-import { SUBPLAN_OPTIONS } from "@/constants/common";
+import { SUBPLAN_OPTIONS } from "@/lib/constants/common";
 import Image from "next/image";
 import { handleSignOut } from "@/helpers/logout";
 // Initialize Stripe

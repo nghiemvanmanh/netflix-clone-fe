@@ -23,7 +23,7 @@ import { Movie, Profile } from "../../../utils/interface";
 import { debounce } from "@/lib/utils";
 import { fetcher } from "../../../utils/fetcher";
 import MovieCard from "../movie/MovieCard";
-import { removeAccentsAndSpaces } from "@/constants/common";
+import { removeAccentsAndSpaces } from "@/lib/constants/common";
 import match from "@/helpers/match";
 import parseJwt from "../../../utils/token";
 import Link from "next/link";

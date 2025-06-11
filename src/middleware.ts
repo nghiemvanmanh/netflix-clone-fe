@@ -9,15 +9,12 @@ export function middleware(request: NextRequest) {
   const sessionId = request.nextUrl.searchParams.get("session_id");
 
   if (pathname.startsWith("/admin")) {
-    // Bỏ qua middleware cho các API
     return NextResponse.next();
   }
-  // ⛔ Chưa login → redirect login
   if (!accessToken && !["/login", "/register"].includes(pathname)) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // ✅ Đã login → kiểm tra user
   if (accessToken) {
     const user = parseJwt(accessToken);
 
@@ -35,7 +32,6 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL("/subscription", request.url));
       }
 
-      // Nếu đã active mà vào success/cancel → redirect về /profiles
       if (isActive) {
         return NextResponse.redirect(new URL("/profiles", request.url));
       }
@@ -49,7 +45,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/profiles", request.url));
     }
 
-    // ✅ Đã có profile → mà vào lại /profiles → chuyển về /home
     if (selectedProfile && pathname === "/profiles") {
       return NextResponse.redirect(new URL("/home", request.url));
     }

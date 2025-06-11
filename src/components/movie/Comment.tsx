@@ -8,7 +8,7 @@ interface CommentProps {
   handleDeleteComment: (commentId: string) => void;
 }
 import { DeleteOutlined } from "@ant-design/icons";
-import { formatTime } from "@/constants/date";
+import { formatTime } from "@/lib/constants/date";
 import { useRef } from "react";
 export function Comment({
   comments,

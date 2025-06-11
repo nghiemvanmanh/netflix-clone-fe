@@ -26,7 +26,7 @@ import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
 import { typeNotification } from "../../../../../../utils/enum";
 import { useQueries } from "@tanstack/react-query";
-import { formatTime } from "@/constants/date";
+import { formatTime } from "@/lib/constants/date";
 import Loading from "@/components/ui/loading";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useMyListHandler } from "@/hooks/use-toggle-mylist";
@@ -139,7 +139,6 @@ export default function MovieDetailPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-
       {/* Back Button */}
       <BackButton />
 

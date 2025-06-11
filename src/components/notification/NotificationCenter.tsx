@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Notification } from "../../../utils/interface";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatTime } from "@/constants/date";
+import { formatTime } from "@/lib/constants/date";
 
 interface NotificationCenterProps {
   notifications: Notification[];
