@@ -64,7 +64,7 @@ export default function AddProfileModal({
       onProfileCreated(newProfile);
       notification.success({
         message: "Thêm hồ sơ thành công",
-        description: `Hồ sơ "${newProfile.name}" đã được tạo thành công!`,
+        description: `Hồ sơ đã được tạo thành công!`,
       });
       setName("");
       setSelectedAvatar(null);

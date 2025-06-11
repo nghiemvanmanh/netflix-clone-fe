@@ -31,6 +31,7 @@ import Loading from "@/components/ui/loading";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useMyListHandler } from "@/hooks/use-toggle-mylist";
 import { Comment } from "@/components/movie/Comment";
+import { BackButton } from "@/components/ui/back-button";
 export default function MovieDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -141,15 +142,7 @@ export default function MovieDetailPage() {
       <Header />
 
       {/* Back Button */}
-      <div className="fixed top-6 left-6 z-40 mt-10">
-        <Button
-          variant="ghost"
-          className="bg-black/50 hover:bg-white/50 text-white rounded-full w-12 h-12 p-0 cursor-pointer"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="w-[25px] h-[30px] sm:w-6 sm:h-6" />
-        </Button>
-      </div>
+      <BackButton />
 
       {/* Hero Section */}
       <section className="relative h-full pt-32">

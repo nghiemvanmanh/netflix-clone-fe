@@ -8,6 +8,10 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const sessionId = request.nextUrl.searchParams.get("session_id");
 
+  if (pathname.startsWith("/admin")) {
+    // Bỏ qua middleware cho các API
+    return NextResponse.next();
+  }
   // ⛔ Chưa login → redirect login
   if (!accessToken && !["/login", "/register"].includes(pathname)) {
     return NextResponse.redirect(new URL("/login", request.url));
@@ -59,5 +63,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|netflix-background.jpg|avatars).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|netflix-background.jpg|avatars).*)",
+  ],
 };
