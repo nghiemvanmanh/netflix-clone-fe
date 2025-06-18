@@ -67,3 +67,18 @@ export interface Notification {
   movieTitle?: string;
   movieImage?: string;
 }
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  interval: string;
+  features: string[];
+  popular?: boolean;
+  icon: React.ReactNode;
+  quality: string;
+  devices: string;
+  downloads: string;
+  stripePriceId: string; // Add Stripe Price ID
+}

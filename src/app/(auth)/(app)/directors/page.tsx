@@ -1,31 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import DirectorModal from "@/components/director/director-modal";
-import { Director, User } from "../../../../../utils/interface";
+import { Director } from "../../../../../utils/interface";
 import { fetcher } from "../../../../../utils/fetcher";
-import Header from "@/components/header/header";
 import PersonCard from "@/components/PersonCard";
 import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 export default function DirectorsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingDirector, setEditingDirector] = useState<Director | null>(null);
-
+  const [isClient, setIsClient] = useState(false);
   const { user } = useUser();
   const {
     data: directors,
     refetch: refetchDirectors,
-    isLoading: loading,
+    isLoading,
   } = useQuery({
     queryKey: ["directors"],
     queryFn: () => {
       return fetcher.get("/directors").then((res) => res.data);
     },
     initialData: [],
+    onSuccess: () => {
+      setIsClient(true);
+    },
   });
 
   const handleAddDirector = () => {
@@ -62,13 +64,12 @@ export default function DirectorsPage() {
     setShowModal(false);
   };
 
-  if (loading) {
+  if (!isClient || isLoading) {
     return <Loading />;
   }
 
   return (
     <div className="min-h-screen bg-black text-white">
-
       {/* Main Content */}
       <main className="pt-20 px-6 pb-20">
         <div className="max-w-7xl mx-auto">

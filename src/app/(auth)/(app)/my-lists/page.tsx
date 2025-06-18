@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
-import { Movie, Profile, User } from "../../../../../utils/interface";
 import { fetcher } from "../../../../../utils/fetcher";
-import Header from "@/components/header/header";
 import MovieCard from "@/components/movie/MovieCard";
 import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
 import Loading from "@/components/ui/loading";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 export default function MyListsPage() {
   const router = useRouter();
   const [myList, setMyList] = useState<string[]>([]);
@@ -19,7 +17,7 @@ export default function MyListsPage() {
   const { profile } = useProfile();
   const [isClient, setIsClient] = useState(false);
 
-  const { data: myListMovies, isLoading: loading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["my-lists", user?.id, profile?.id],
     queryFn: () => {
       return fetcher
@@ -27,17 +25,16 @@ export default function MyListsPage() {
         .then((res) => res.data);
     },
     initialData: [],
+    onSuccess: (data) => {
+      setMyList(data.map((item: any) => item.movie.id));
+      setIsClient(true);
+    },
   });
-  useEffect(() => {
-    setMyList(myListMovies.map((item: any) => item.movie.id));
-    setIsClient(true);
-  }, [myListMovies]);
-  if (!isClient || loading) {
+  if (!isClient || isLoading) {
     return <Loading />;
   }
   return (
     <div className="min-h-screen bg-black text-white">
-
       {/* Main Content */}
       <main className="pt-20 px-6 pb-20">
         <div className="max-w-7xl mx-auto">
@@ -45,16 +42,16 @@ export default function MyListsPage() {
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">My List</h1>
             <p className="text-gray-400">
-              {myListMovies.length > 0
-                ? `${myListMovies.length} movies trong danh sách của bạn`
+              {data.length > 0
+                ? `${data.length} movies trong danh sách của bạn`
                 : "Danh sách của bạn trống. Thêm một số phim và chương trình để xem sau!"}
             </p>
           </div>
 
           {/* My List Content */}
-          {myListMovies.length > 0 ? (
+          {data.length > 0 ? (
             <div className="grid grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))] gap-20">
-              {myListMovies.map((movie: any) => (
+              {data.map((movie: any) => (
                 <MovieCard
                   key={movie.movie.id}
                   movie={movie.movie}

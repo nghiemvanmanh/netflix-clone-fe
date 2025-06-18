@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowLeft,
   ThumbsUp,
   ThumbsDown,
   Plus,
@@ -13,18 +12,12 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
-import { Genre, Movie, Profile, User } from "../../../../../../utils/interface";
+import { Movie } from "../../../../../../utils/interface";
 import { fetcher } from "../../../../../../utils/fetcher";
 import VideoPlayer from "@/components/movie/video-player";
-import Header from "@/components/header/header";
-import parseJwt from "../../../../../../utils/token";
-import Cookies from "js-cookie";
-import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "@/components/ui/loading";
-import { useNotifications } from "@/contexts/use_notification-context";
-import { typeNotification } from "../../../../../../utils/enum";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries } from "react-query";
 import { useProfile } from "@/contexts/use-profile";
 import { useUser } from "@/contexts/user-provider";
 import { useMyListHandler } from "@/hooks/use-toggle-mylist";
@@ -35,6 +28,7 @@ export default function WatchPage() {
   const movieId = params.id as string;
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [myList, setMyList] = useState<string[]>([]);
+  const [isClient, setIsClient] = useState(false);
   const { user } = useUser();
   const { profile } = useProfile();
   const { handleToggleMyList, isLoading } = useMyListHandler({
@@ -43,39 +37,46 @@ export default function WatchPage() {
     myList,
     setMyList,
   });
-  const results = useQueries({
-    queries: [
-      {
-        queryKey: ["similarMovies", movieId],
-        queryFn: () =>
-          fetcher.get(`/movies/${movieId}/similar`).then((res) => res.data),
-        refetchOnWindowFocus: false,
+  const results = useQueries([
+    {
+      queryKey: ["similarMovies", movieId],
+      queryFn: () =>
+        fetcher.get(`/movies/${movieId}/similar`).then((res) => res.data),
+      refetchOnWindowFocus: false,
+      initialData: [],
+      onSuccess: () => {
+        setIsClient(true);
       },
-      {
-        queryKey: ["Movies", movieId],
-        queryFn: () =>
-          fetcher.get(`/movies/${movieId}`).then((res) => res.data),
-        refetchOnWindowFocus: false,
+    },
+    {
+      queryKey: ["Movies", movieId],
+      queryFn: () => fetcher.get(`/movies/${movieId}`).then((res) => res.data),
+      refetchOnWindowFocus: false,
+      initialData: [],
+      onSuccess: () => {
+        setIsClient(true);
       },
-    ],
-  });
+    },
+    {
+      queryKey: ["my-lists", user?.id, profile?.id],
+      queryFn: () =>
+        fetcher
+          .get(`/users/${user?.id}/profiles/${profile?.id}/my-lists`)
+          .then((res) => res.data),
+      enabled: !!user?.id && !!profile?.id,
+      initialData: [],
+      onSuccess: (data: Movie[]) => {
+        setMyList(data.map((item: any) => item.movie.id));
+        setIsClient(true);
+      },
+    },
+  ]);
 
   const similarMovies: Movie[] = results[0].data;
-  const movie: Movie = results[1].data;
+  const movie: Movie = results[1].data || {};
   const loading = results.some((result) => result.isLoading);
-  useEffect(() => {
-    const fetchMyList = async () => {
-      if (user?.id && profile?.id) {
-        const response = await fetcher.get(
-          `/users/${user.id}/profiles/${profile.id}/my-lists`
-        );
-        setMyList(response.data?.map((item: any) => item.movie.id));
-      }
-    };
-    fetchMyList();
-  }, [movieId, router]);
 
-  if (loading) {
+  if (!isClient || loading) {
     return <Loading />;
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -19,11 +19,12 @@ import { notification } from "antd";
 import { Profile } from "../../../../utils/interface";
 import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 import { handleSignOut } from "@/helpers/logout";
 
 export default function ProfilesPage() {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const { user } = useUser();
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -40,13 +41,16 @@ export default function ProfilesPage() {
   const {
     data: profiles,
     refetch: refetchProfiles,
-    isLoading: loading,
+    isLoading,
   } = useQuery({
     queryKey: ["profiles"],
     queryFn: () => {
       return fetcher.get(`/profiles`).then((res) => res.data);
     },
     initialData: [],
+    onSuccess: () => {
+      setIsClient(true);
+    },
   });
 
   const handleDeleteProfile = (profile: Profile, e: React.MouseEvent) => {
@@ -92,7 +96,7 @@ export default function ProfilesPage() {
     setShowAddModal(false);
   };
 
-  if (loading) {
+  if (!isClient || isLoading) {
     return <Loading />;
   }
 

@@ -4,3 +4,9 @@ export enum typeNotification {
   INFO = "info",
   WARNING = "warning",
 }
+
+export enum PLAN_TYPE {
+  BASIC = "basic",
+  STANDARD = "standard",
+  PREMIUM = "premium",
+}

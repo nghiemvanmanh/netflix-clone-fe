@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 import { Check, Star, Crown, Zap, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { loadStripe } from "@stripe/stripe-js";
@@ -24,44 +24,34 @@ import { useUser } from "@/contexts/user-provider";
 import { SUBPLAN_OPTIONS } from "@/lib/constants/common";
 import Image from "next/image";
 import { handleSignOut } from "@/helpers/logout";
+import { SubscriptionPlan } from "../../../../utils/interface";
+import { PLAN_TYPE } from "../../../../utils/enum";
 // Initialize Stripe
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
-interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  currency: string;
-  interval: string;
-  features: string[];
-  popular?: boolean;
-  icon: React.ReactNode;
-  quality: string;
-  devices: string;
-  downloads: string;
-  stripePriceId: string; // Add Stripe Price ID
-}
-
 export default function SubscriptionPage() {
-  const [selectedPlan, setSelectedPlan] = useState<string>("standard");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>(PLAN_TYPE.STANDARD);
+  const [isClient, setIsClient] = useState(false);
   const { user } = useUser();
 
   const router = useRouter();
 
-  const { data: subscriptionPlans } = useQuery({
+  const { data: subscriptionPlans, isLoading } = useQuery({
     queryKey: ["subscriptionPlans"],
     queryFn: () =>
       fetcher.get<SubscriptionPlan[]>("subscriptions").then((res) => res.data),
-    initialData: () => [],
+    initialData: [],
+    onSuccess: () => {
+      setIsClient(true);
+    },
   });
 
   useEffect(() => {
     const plan =
-      subscriptionPlans.find((plan) => plan.name === "standard") ||
-      subscriptionPlans[0];
+      subscriptionPlans?.find((plan) => plan.name === PLAN_TYPE.STANDARD) ||
+      subscriptionPlans?.[0];
 
     if (plan) {
       setSelectedPlan(plan.id);
@@ -71,11 +61,11 @@ export default function SubscriptionPage() {
   // Hàm map icon string thành component icon thực tế
   function renderIcon(name: string) {
     switch (name) {
-      case "basic":
+      case PLAN_TYPE.BASIC:
         return <Star className="w-6 h-6" />;
-      case "standard":
+      case PLAN_TYPE.STANDARD:
         return <Crown className="w-6 h-6" />;
-      case "premium":
+      case PLAN_TYPE.PREMIUM:
         return <Zap className="w-6 h-6" />;
       default:
         return null;
@@ -88,9 +78,8 @@ export default function SubscriptionPage() {
 
   const handleSubscribe = async () => {
     if (!selectedPlan || !user) return;
-    setIsLoading(true);
     try {
-      const plan = subscriptionPlans.find((p) => p.id === selectedPlan);
+      const plan = subscriptionPlans?.find((p) => p.id === selectedPlan);
       if (!plan) return;
 
       // Create Stripe checkout session
@@ -133,7 +122,7 @@ export default function SubscriptionPage() {
     }).format(price);
   };
 
-  if (!user) {
+  if (!isClient || isLoading) {
     return <Loading />;
   }
 
@@ -184,7 +173,7 @@ export default function SubscriptionPage() {
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {subscriptionPlans.map((plan) => (
+          {subscriptionPlans?.map((plan) => (
             <motion.div
               key={plan.id}
               whileHover={{ scale: 1.05 }}
@@ -298,7 +287,7 @@ export default function SubscriptionPage() {
                 </div>
               ) : (
                 `Đăng ký gói ${
-                  subscriptionPlans.find((p) => p.id === selectedPlan)?.name
+                  subscriptionPlans?.find((p) => p.id === selectedPlan)?.name
                 }`
               )}
             </Button>

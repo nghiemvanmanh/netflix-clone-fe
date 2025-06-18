@@ -13,50 +13,55 @@ import "swiper/css";
 import Loading from "@/components/ui/loading";
 import { useProfile } from "@/contexts/use-profile";
 import { useUser } from "@/contexts/user-provider";
+import { useQueries } from "react-query";
 export default function HomePage() {
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
-  const [movies, setMovies] = useState<Movie[]>([]);
   const [myList, setMyList] = useState<string[]>([]);
+  const [isClient, setIsClient] = useState(false);
   const { user } = useUser();
   const { profile } = useProfile();
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
-
-    const fetchMovies = async () => {
-      try {
-        const res = await fetcher.get("/movies");
-        const movies = res.data;
-        setMovies(movies);
-
-        if (movies.length > 0) {
+  let intervalId: NodeJS.Timeout | null = null;
+  const queries = useQueries([
+    {
+      queryKey: ["movies"],
+      queryFn: () => fetcher.get("/movies").then((res) => res.data),
+      initialData: [],
+      onSuccess: (data: Movie[]) => {
+        if (data.length > 0) {
           const pickRandom = () =>
-            setFeaturedMovie(movies[Math.floor(Math.random() * movies.length)]);
-
+            setFeaturedMovie(data[Math.floor(Math.random() * data.length)]);
           pickRandom();
           intervalId = setInterval(pickRandom, 8000);
         }
-      } catch (error) {
+        setIsClient(true);
+      },
+      onError: (error: any) => {
         console.error("Error fetching movies:", error);
-      }
-    };
-
-    const fetchMyList = async () => {
-      if (user?.id && profile?.id) {
-        const response = await fetcher.get(
-          `/users/${user.id}/profiles/${profile.id}/my-lists`
-        );
-        setMyList(response.data?.map((item: any) => item.movie.id));
-      }
-    };
-    fetchMyList();
-    fetchMovies();
-
+      },
+    },
+    {
+      queryKey: ["my-lists", user?.id, profile?.id],
+      queryFn: () =>
+        fetcher
+          .get(`/users/${user?.id}/profiles/${profile?.id}/my-lists`)
+          .then((res) => res.data),
+      enabled: !!user?.id && !!profile?.id,
+      initialData: [],
+      onSuccess: (data: Movie[]) => {
+        setMyList(data.map((item: any) => item.movie.id));
+        setIsClient(true);
+      },
+    },
+  ]);
+  const movies: Movie[] = queries[0].data || [];
+  const isLoading = queries.some((query) => query.isLoading);
+  useEffect(() => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [profile]);
+  }, [intervalId]);
 
-  if (!profile) {
+  if (!isClient || isLoading) {
     return <Loading />;
   }
 

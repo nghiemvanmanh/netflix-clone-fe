@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,24 +11,28 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useUser } from "@/contexts/user-provider";
 import Loading from "@/components/ui/loading";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 export default function SubscriptionSuccessPage() {
   const { user } = useUser();
   const searchParams = useSearchParams();
+  const [isClient, setIsClient] = useState(false);
   const sessionId = searchParams.get("session_id");
   const router = useRouter();
 
   const {
     data: paymentData,
-    isLoading: isLoading,
+    isLoading,
     error,
   } = useQuery({
     queryKey: ["verify-payment", sessionId],
-    enabled: !!sessionId, // chỉ chạy khi có sessionId
+    enabled: !!sessionId,
     queryFn: () => {
       return fetcher
         .post(`/subscriptions/verify-payment?session_id=${sessionId}`)
         .then((res) => res.data);
+    },
+    onSuccess: () => {
+      setIsClient(true);
     },
   });
 
@@ -52,7 +56,7 @@ export default function SubscriptionSuccessPage() {
     router.push("/profiles");
   };
 
-  if (isLoading) {
+  if (!isClient || isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center gap-2">
         <div className="animate-spin border-t-2 border-white rounded-full w-6 h-6"></div>

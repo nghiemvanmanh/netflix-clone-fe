@@ -1,32 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import Cookies from "js-cookie";
 import MovieModal from "@/components/movie/movie-modal";
 import { Movie, User } from "../../../../../utils/interface";
 import { fetcher } from "../../../../../utils/fetcher";
-import Header from "@/components/header/header";
 import MovieGrid from "@/components/movie/MovieGrid";
 import Loading from "@/components/ui/loading";
 import { useUser } from "@/contexts/user-provider";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 export default function MoviesPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
+  const [isClient, setIsClient] = useState(false);
   const { user } = useUser();
   const {
     data: movies,
     refetch: refetchMovies,
-    isLoading: loading,
+    isLoading,
   } = useQuery({
     queryKey: ["movies"],
     queryFn: () => {
       return fetcher.get("/movies").then((res) => res.data);
     },
     initialData: [],
+    onSuccess: () => {
+      setIsClient(true);
+    },
   });
 
   const handleAddMovie = () => {
@@ -63,7 +64,7 @@ export default function MoviesPage() {
     setShowModal(false);
   };
 
-  if (loading) {
+  if (!isClient || isLoading) {
     return <Loading />;
   }
 

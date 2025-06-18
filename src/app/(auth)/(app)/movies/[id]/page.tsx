@@ -9,7 +9,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   Share,
-  ArrowLeft,
   Star,
   Check,
   Loader2,
@@ -17,18 +16,13 @@ import {
 } from "lucide-react";
 import { Movie } from "../../../../../../utils/interface";
 import { fetcher } from "../../../../../../utils/fetcher";
-import Header from "@/components/header/header";
 import Image from "next/image";
 import { notification } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
-import { useNotifications } from "@/contexts/use_notification-context";
 import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
-import { typeNotification } from "../../../../../../utils/enum";
-import { useQueries } from "@tanstack/react-query";
-import { formatTime } from "@/lib/constants/date";
+import { useQueries } from "react-query";
 import Loading from "@/components/ui/loading";
-import { DeleteOutlined } from "@ant-design/icons";
 import { useMyListHandler } from "@/hooks/use-toggle-mylist";
 import { Comment } from "@/components/movie/Comment";
 import { BackButton } from "@/components/ui/back-button";
@@ -37,6 +31,7 @@ export default function MovieDetailPage() {
   const params = useParams();
   const movieId = params.id as string;
   const [myList, setMyList] = useState<string[]>([]);
+  const [isClient, setIsClient] = useState(false);
   const { user } = useUser();
   const { profile } = useProfile();
 
@@ -46,50 +41,61 @@ export default function MovieDetailPage() {
     myList,
     setMyList,
   });
-  const results = useQueries({
-    queries: [
-      {
-        queryKey: ["similarMovies", movieId],
-        queryFn: () =>
-          fetcher.get(`/movies/${movieId}/similar`).then((res) => res.data),
-        refetchOnWindowFocus: false,
+  const results = useQueries([
+    {
+      queryKey: ["similarMovies", movieId],
+      queryFn: () =>
+        fetcher.get(`/movies/${movieId}/similar`).then((res) => res.data),
+      refetchOnWindowFocus: false,
+      initialData: [],
+      onSuccess: () => {
+        setIsClient(true);
       },
-      {
-        queryKey: ["Movies", movieId],
-        queryFn: () =>
-          fetcher.get(`/movies/${movieId}`).then((res) => res.data),
-        refetchOnWindowFocus: false,
+    },
+    {
+      queryKey: ["Movies", movieId],
+      queryFn: () => fetcher.get(`/movies/${movieId}`).then((res) => res.data),
+      refetchOnWindowFocus: false,
+      initialData: [],
+      onSuccess: () => {
+        setIsClient(true);
       },
-      {
-        queryKey: ["comments", movieId],
-        queryFn: () => {
-          return fetcher
-            .get(`/reviews/movies/${movieId}`)
-            .then((res) => res.data);
-        },
-        refetchOnWindowFocus: false,
+    },
+    {
+      queryKey: ["comments", movieId],
+      queryFn: () => {
+        return fetcher
+          .get(`/reviews/movies/${movieId}`)
+          .then((res) => res.data);
       },
-    ],
-  });
+      refetchOnWindowFocus: false,
+      initialData: [],
+      onSuccess: () => {
+        setIsClient(true);
+      },
+    },
+    {
+      queryKey: ["myList", user?.id, profile?.id],
+      queryFn: () =>
+        fetcher
+          .get(`/users/${user?.id}/profiles/${profile?.id}/my-lists`)
+          .then((res) => res.data),
+      enabled: !!user?.id && !!profile?.id,
+      initialData: [],
+      onSuccess: (data: any[]) => {
+        setMyList(data.map((item) => item.movie.id));
+        setIsClient(true);
+      },
+    },
+  ]);
   const similarMovies: Movie[] = results[0].data;
-  const movie: Movie = results[1].data;
+  const movie: Movie = results[1].data || {};
+
   const comments = results[2].data;
   const refetchComments = () => {
     results[2].refetch();
   };
-
-  useEffect(() => {
-    const fetchMyList = async () => {
-      if (user?.id && profile?.id) {
-        const response = await fetcher.get(
-          `/users/${user.id}/profiles/${profile.id}/my-lists`
-        );
-        setMyList(response.data?.map((item: any) => item.movie.id));
-      }
-    };
-
-    fetchMyList();
-  }, [movieId]);
+  const loading = results.some((result) => result.isLoading);
 
   const handlePlay = () => {
     router.push(`/watch/${movieId}`);
@@ -133,7 +139,7 @@ export default function MovieDetailPage() {
     }
   };
 
-  if (!movie) {
+  if (!isClient || loading) {
     return <Loading />;
   }
 

@@ -10,28 +10,28 @@ import PersonCard from "@/components/PersonCard";
 import { useUser } from "@/contexts/user-provider";
 import { Actor } from "../../../../../utils/interface";
 import { fetcher } from "../../../../../utils/fetcher";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 import Loading from "@/components/ui/loading";
 
 export default function ActorsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingActor, setEditingActor] = useState<Actor | null>(null);
-  const [isClient, setIsClient] = useState(true);
+  const [isClient, setIsClient] = useState(false);
   const { user } = useUser();
   const {
     data: actors,
     refetch: refetchActors,
-    isLoading: loading,
+    isLoading,
   } = useQuery({
     queryKey: ["actors"],
     queryFn: () => {
       return fetcher.get("/actors").then((res) => res.data);
     },
     initialData: [],
+    onSuccess: () => {
+      setIsClient(true);
+    },
   });
-  useEffect(() => {
-    setIsClient(false);
-  }, []);
   const handleAddActor = () => {
     setEditingActor(null);
     setShowModal(true);
@@ -66,13 +66,12 @@ export default function ActorsPage() {
     setShowModal(false);
   };
 
-  if (isClient || loading) {
+  if (!isClient || isLoading) {
     return <Loading />;
   }
 
   return (
     <div className="min-h-screen bg-black text-white">
-
       {/* Main Content */}
       <main className="pt-20 px-6 pb-20">
         <div className="max-w-7xl mx-auto">
