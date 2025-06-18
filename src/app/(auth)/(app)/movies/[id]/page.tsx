@@ -89,7 +89,7 @@ export default function MovieDetailPage() {
     },
   ]);
   const similarMovies: Movie[] = results[0].data;
-  const movie: Movie = results[1].data || {};
+  const movie: Movie = results[1].data;
 
   const comments = results[2].data;
   const refetchComments = () => {
@@ -151,7 +151,7 @@ export default function MovieDetailPage() {
       {/* Hero Section */}
       <section className="relative h-full pt-32">
         <Image
-          src={movie.thumbnailUrl || "/placeholder.svg"}
+          src={movie?.thumbnailUrl || "/placeholder.svg"}
           alt="Movie thumbnail"
           fill
           className="absolute inset-0 object-cover"
@@ -162,7 +162,7 @@ export default function MovieDetailPage() {
         <div className="relative z-10 flex items-end h-full px-6 pb-32">
           <div className="max-w-2xl">
             <h1 className="text-3xl font-bold mb-4 sm:text-6xl">
-              {movie.title}
+              {movie?.title}
             </h1>
 
             <div className="flex items-center space-x-4 mb-6">
@@ -171,9 +171,9 @@ export default function MovieDetailPage() {
                 <span className="text-lg">8.5</span>
               </div>
               <span className="text-gray-300">
-                {new Date(movie.releaseDate).getFullYear()}
+                {new Date(movie?.releaseDate).getFullYear()}
               </span>
-              <span className="text-gray-300">{movie.duration}</span>
+              <span className="text-gray-300">{movie?.duration}</span>
               <span className="border border-gray-500 px-2 py-1 rounded text-xs">
                 4K Ultra HD, HDR, HD
               </span>
@@ -181,17 +181,17 @@ export default function MovieDetailPage() {
 
             <div className="flex items-center space-x-4 mb-6">
               <span className="inline-block bg-gradient-to-r from-gray-800 to-blue-600 px-3 py-1 rounded-full text-sm text-white shadow-sm">
-                {movie.movieTypes.map((m) => m.name).join(", ")}
+                {movie?.movieTypes.map((m) => m.name).join(", ")}
               </span>
             </div>
             <div className="flex items-center space-x-4 mb-6">
               <span className="inline-block bg-gradient-to-r from-red-600 to-gray-900 px-3 py-1 rounded-full text-sm text-white shadow-sm">
-                {movie.genres.map((genre) => genre.name).join(", ")}
+                {movie?.genres.map((genre) => genre.name).join(", ")}
               </span>
             </div>
 
             <p className="text-lg mb-8 text-gray-200 leading-relaxed max-w-xs sm:max-w-xl">
-              {movie.description}
+              {movie?.description}
             </p>
 
             <div className="sm:flex sm:flex-row space-y-4 mb-8  ">
@@ -311,7 +311,7 @@ export default function MovieDetailPage() {
             {/* Main Content */}
             <div className="lg:col-span-2">
               <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl p-8 mb-8 shadow-xl shadow-black/30 border border-gray-700">
-                <h2 className="text-2xl font-bold mb-6">{movie.title}</h2>
+                <h2 className="text-2xl font-bold mb-6">{movie?.title}</h2>
 
                 <div className="space-y-4">
                   <div>
@@ -319,7 +319,7 @@ export default function MovieDetailPage() {
                       Đạo diễn:{" "}
                     </span>
                     <span className="text-white">
-                      {movie.directors
+                      {movie?.directors
                         .map((director) => director.name)
                         .join(", ")}
                     </span>
@@ -330,7 +330,7 @@ export default function MovieDetailPage() {
                       Diễn viên:{" "}
                     </span>
                     <span className="text-white">
-                      {movie.actors.map((actor) => actor.name).join(", ")}
+                      {movie?.actors.map((actor) => actor.name).join(", ")}
                     </span>
                   </div>
 
@@ -339,7 +339,7 @@ export default function MovieDetailPage() {
                       Thể loại:{" "}
                     </span>
                     <span className="text-white">
-                      {movie.genres.map((genre) => genre.name).join(", ")}
+                      {movie?.genres.map((genre) => genre.name).join(", ")}
                     </span>
                   </div>
                   <div className="text-gray-400 font-medium">
@@ -355,7 +355,7 @@ export default function MovieDetailPage() {
                       Năm phát hành:{" "}
                     </span>
                     <span className="text-white">
-                      {new Date(movie.releaseDate).getFullYear()}
+                      {new Date(movie?.releaseDate).getFullYear()}
                     </span>
                   </div>
 
@@ -363,13 +363,13 @@ export default function MovieDetailPage() {
                     <span className="text-gray-400 font-medium">
                       Thời gian:{" "}
                     </span>
-                    <span className="text-white">{movie.duration}</span>
+                    <span className="text-white">{movie?.duration}</span>
                   </div>
 
                   <div>
                     <span className="text-gray-400 font-medium">Loại: </span>
                     <span className="text-white">
-                      {movie.movieTypes.map((m) => m.name).join(", ")}
+                      {movie?.movieTypes.map((m) => m.name).join(", ")}
                     </span>
                   </div>
                 </div>

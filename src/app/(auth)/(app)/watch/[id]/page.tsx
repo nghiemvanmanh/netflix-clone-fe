@@ -73,7 +73,7 @@ export default function WatchPage() {
   ]);
 
   const similarMovies: Movie[] = results[0].data;
-  const movie: Movie = results[1].data || {};
+  const movie: Movie = results[1].data ;
   const loading = results.some((result) => result.isLoading);
 
   if (!isClient || loading) {
@@ -117,7 +117,7 @@ export default function WatchPage() {
       <div className="px-6 pb-20">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
+            <h1 className="text-3xl font-bold mb-2">{movie?.title}</h1>
 
             <div className="flex items-center space-x-4 mb-4">
               <div className="flex items-center space-x-2">
@@ -125,12 +125,12 @@ export default function WatchPage() {
                 <span className="text-lg">8.5</span>
               </div>
               <span className="bg-gray-800 px-2 py-1 rounded text-sm hidden sm:inline-block">
-                {movie.movieTypes.map((type) => type.name).join(", ")}
+                {movie?.movieTypes.map((type) => type.name).join(", ")}
               </span>
               <span className="text-gray-300">
-                {new Date(movie.releaseDate).getFullYear()}
+                {new Date(movie?.releaseDate).getFullYear()}
               </span>
-              <span className="text-gray-300">{movie.duration}</span>
+              <span className="text-gray-300">{movie?.duration}</span>
               <span className="border border-gray-500 px-2 py-1 rounded text-xs">
                 HD
               </span>
@@ -201,7 +201,7 @@ export default function WatchPage() {
             </div>
 
             <p className="text-lg mb-6 text-gray-200 leading-relaxed">
-              {movie.description}
+              {movie?.description}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -209,7 +209,7 @@ export default function WatchPage() {
                 <div className="mb-4">
                   <span className="text-gray-400 font-medium">Đạo diễn: </span>
                   <span className="text-white">
-                    {movie.directors
+                    {movie?.directors
                       .map((director) => director.name)
                       .join(", ")}
                   </span>
@@ -217,13 +217,13 @@ export default function WatchPage() {
                 <div className="mb-4">
                   <span className="text-gray-400 font-medium">Diễn viên: </span>
                   <span className="text-white">
-                    {movie.actors.map((actor) => actor.name).join(", ")}
+                    {movie?.actors.map((actor) => actor.name).join(", ")}
                   </span>
                 </div>
                 <div className="mb-4">
                   <span className="text-gray-400 font-medium">Thể loại: </span>
                   <span className="text-white">
-                    {movie.genres.map((genre) => genre.name).join(", ")}
+                    {movie?.genres.map((genre) => genre.name).join(", ")}
                   </span>
                 </div>
               </div>
@@ -233,19 +233,19 @@ export default function WatchPage() {
                     Năm phát hành:{" "}
                   </span>
                   <span className="text-white">
-                    {new Date(movie.releaseDate).getFullYear()}
+                    {new Date(movie?.releaseDate).getFullYear()}
                   </span>
                 </div>
                 <div className="mb-4">
                   <span className="text-gray-400 font-medium">
                     Thời lượng:{" "}
                   </span>
-                  <span className="text-white">{movie.duration}</span>
+                  <span className="text-white">{movie?.duration}</span>
                 </div>
                 <div className="mb-4">
                   <span className="text-gray-400 font-medium">Loại: </span>
                   <span className="text-white">
-                    {movie.movieTypes.map((type) => type.name).join(", ")}
+                    {movie?.movieTypes.map((type) => type.name).join(", ")}
                   </span>
                 </div>
               </div>
@@ -256,7 +256,7 @@ export default function WatchPage() {
           <div>
             <h2 className="text-2xl font-bold mb-6">Có thể bạn sẽ thích</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {similarMovies.map((similarMovie) => (
+              {similarMovies?.map((similarMovie) => (
                 <div
                   key={similarMovie.id}
                   className="cursor-pointer group"

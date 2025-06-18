@@ -53,7 +53,7 @@ export default function HomePage() {
       },
     },
   ]);
-  const movies: Movie[] = queries[0].data || [];
+  const movies: Movie[] = queries[0].data;
   const isLoading = queries.some((query) => query.isLoading);
   useEffect(() => {
     return () => {
