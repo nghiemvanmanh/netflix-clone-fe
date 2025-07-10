@@ -83,7 +83,7 @@ export default function MovieDetailPage() {
       enabled: !!user?.id && !!profile?.id,
       initialData: [],
       onSuccess: (data: any[]) => {
-        setMyList(data.map((item) => item.movie.id));
+        setMyList(data?.map((item) => item.movie.id));
         setIsClient(true);
       },
     },
@@ -181,12 +181,12 @@ export default function MovieDetailPage() {
 
             <div className="flex items-center space-x-4 mb-6">
               <span className="inline-block bg-gradient-to-r from-gray-800 to-blue-600 px-3 py-1 rounded-full text-sm text-white shadow-sm">
-                {movie?.movieTypes.map((m) => m.name).join(", ")}
+                {movie?.movieTypes?.map((m) => m.name).join(", ")}
               </span>
             </div>
             <div className="flex items-center space-x-4 mb-6">
               <span className="inline-block bg-gradient-to-r from-red-600 to-gray-900 px-3 py-1 rounded-full text-sm text-white shadow-sm">
-                {movie?.genres.map((genre) => genre.name).join(", ")}
+                {movie?.genres?.map((genre) => genre.name).join(", ")}
               </span>
             </div>
 
@@ -320,7 +320,7 @@ export default function MovieDetailPage() {
                     </span>
                     <span className="text-white">
                       {movie?.directors
-                        .map((director) => director.name)
+                        ?.map((director) => director.name)
                         .join(", ")}
                     </span>
                   </div>
@@ -330,7 +330,7 @@ export default function MovieDetailPage() {
                       Diễn viên:{" "}
                     </span>
                     <span className="text-white">
-                      {movie?.actors.map((actor) => actor.name).join(", ")}
+                      {movie?.actors?.map((actor) => actor.name).join(", ")}
                     </span>
                   </div>
 
@@ -339,7 +339,7 @@ export default function MovieDetailPage() {
                       Thể loại:{" "}
                     </span>
                     <span className="text-white">
-                      {movie?.genres.map((genre) => genre.name).join(", ")}
+                      {movie?.genres?.map((genre) => genre.name).join(", ")}
                     </span>
                   </div>
                   <div className="text-gray-400 font-medium">
@@ -369,7 +369,7 @@ export default function MovieDetailPage() {
                   <div>
                     <span className="text-gray-400 font-medium">Loại: </span>
                     <span className="text-white">
-                      {movie?.movieTypes.map((m) => m.name).join(", ")}
+                      {movie?.movieTypes?.map((m) => m.name).join(", ")}
                     </span>
                   </div>
                 </div>
@@ -386,7 +386,7 @@ export default function MovieDetailPage() {
                 <div className="bg-gray-900 rounded-lg p-8">
                   <h2 className="text-2xl font-bold mb-6">Episodes</h2>
                   <div className="space-y-4">
-                    {[1, 2, 3].map((episode) => (
+                    {[1, 2, 3]?.map((episode) => (
                       <div
                         key={episode}
                         className="flex items-center space-x-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 cursor-pointer"
@@ -428,7 +428,7 @@ export default function MovieDetailPage() {
 
                 {similarMovies?.length > 0 ? (
                   <div className="space-y-4">
-                    {similarMovies.map((similarMovie) => (
+                    {similarMovies?.map((similarMovie) => (
                       <div
                         key={similarMovie.id}
                         className="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0 cursor-pointer hover:bg-gray-800 p-2 rounded"
