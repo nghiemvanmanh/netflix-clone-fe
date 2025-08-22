@@ -71,7 +71,7 @@ const Footer = () => {
   return (
     <footer className="bg-black text-gray-300 border-t border-gray-800">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className=" mx-auto px-4 py-12">
         {/* Top Section - Logo and Social */}
         <div className="flex flex-col md:flex-row justify-between items-start mb-12">
           <div className="mb-8 md:mb-0">

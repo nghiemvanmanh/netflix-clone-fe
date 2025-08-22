@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Info, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
 import VideoPlayer from "./video-player";
+import { GENRES } from "@/lib/constants/genre";
 
 interface FeaturedMovieProps {
   movie: Movie;
@@ -48,7 +49,9 @@ export function FeaturedMovie({ movie }: FeaturedMovieProps) {
               {new Date(movie.releaseDate).getFullYear()}
             </span>
             <span className="text-gray-300">
-              {movie.genres.map((genre) => genre.name).join(", ")}
+              {movie.genres
+                .map((genre) => GENRES[genre.name as keyof typeof GENRES])
+                .join(", ")}
             </span>
           </div>
 

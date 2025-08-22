@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Play, Plus, Info, Check, Loader2 } from "lucide-react";
 import { Movie } from "../../../utils/interface";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { fetcher } from "../../../utils/fetcher";
 import { notification } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,7 @@ import { useNotifications } from "@/contexts/use_notification-context";
 import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
 import { typeNotification } from "../../../utils/enum";
+import { GENRES } from "@/lib/constants/genre";
 
 interface MovieCardProps {
   movie: Movie;
@@ -271,7 +272,9 @@ export default function MovieCard({
                   <span>{new Date(movie.releaseDate).getFullYear()}</span>
                 </div>
                 <div className="text-gray-400">
-                  {movie.genres?.map((genre) => genre.name).join(", ")}
+                  {movie.genres
+                    ?.map((genre) => GENRES[genre.name as keyof typeof GENRES])
+                    .join(", ")}
                 </div>
               </div>
             </div>

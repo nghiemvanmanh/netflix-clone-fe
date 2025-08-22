@@ -14,6 +14,7 @@ import Loading from "@/components/ui/loading";
 import { useProfile } from "@/contexts/use-profile";
 import { useUser } from "@/contexts/user-provider";
 import { useQueries } from "react-query";
+import { GENRES } from "@/lib/constants/genre";
 export default function HomePage() {
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
   const [myList, setMyList] = useState<string[]>([]);
@@ -144,6 +145,53 @@ export default function HomePage() {
               }}
             >
               {movies
+                .slice()
+                .reverse()
+                .map((movie: Movie) => (
+                  <SwiperSlide className=" hover:z-50" key={movie.id}>
+                    <MovieCard
+                      movie={movie}
+                      isMyList={false}
+                      myList={myList}
+                      setMyList={setMyList}
+                    />
+                  </SwiperSlide>
+                ))}
+            </Swiper>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Thể loại phim hành động</h2>
+
+            <Swiper
+              className="!overflow-visible"
+              modules={[Autoplay]}
+              autoplay={{
+                delay: 3000, // 3 giây
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              spaceBetween={10}
+              slidesPerView={5}
+              loop={true}
+              breakpoints={{
+                320: { slidesPerView: 1 },
+                480: { slidesPerView: 2 },
+                768: { slidesPerView: 3 },
+                1024: { slidesPerView: 4 },
+                1280: { slidesPerView: 5 },
+              }}
+            >
+              {movies
+                .filter((movie: Movie) =>
+                  movie.genres
+                    .map((genre: any) =>
+                      typeof genre === "string"
+                        ? GENRES[genre as keyof typeof GENRES]
+                        : GENRES[genre.name as keyof typeof GENRES]
+                    )
+                    .includes(GENRES.action)
+                )
                 .slice()
                 .reverse()
                 .map((movie: Movie) => (

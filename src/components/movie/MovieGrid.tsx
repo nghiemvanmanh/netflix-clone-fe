@@ -13,6 +13,7 @@ import { useUser } from "@/contexts/user-provider";
 import { useProfile } from "@/contexts/use-profile";
 import { typeNotification } from "../../../utils/enum";
 import { useMyListHandler } from "@/hooks/use-toggle-mylist";
+import { GENRES } from "@/lib/constants/genre";
 type Props = {
   movie: Movie;
   isAdmin?: boolean;
@@ -132,7 +133,7 @@ export default function MovieGrid({ movie, isAdmin, onEdit, onDelete }: Props) {
               <span>{movie.duration}</span>
             </div>
             <div className="text-gray-400">
-              {movie.genres.map((genre) => genre.name).join(", ")}
+              {movie.genres.map((genre) => GENRES[genre.name as keyof typeof GENRES]).join(", ")}
             </div>
           </div>
         </div>
