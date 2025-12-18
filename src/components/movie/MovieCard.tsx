@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Play, Plus, Info, Check, Loader2 } from "lucide-react";
 import { Movie } from "../../../utils/interface";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetcher } from "../../../utils/fetcher";
 import { notification } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
@@ -162,6 +162,9 @@ export default function MovieCard({
     router.push(`/movies/${movieId}`);
   };
 
+  useEffect(() => {
+    console.log({movie});
+  }, [movie]);
   return (
     <AnimatePresence>
       {!isHidden && (
@@ -273,7 +276,7 @@ export default function MovieCard({
                 </div>
                 <div className="text-gray-400">
                   {movie.genres
-                    ?.map((genre) => GENRES[genre.name as keyof typeof GENRES])
+                    ?.map((genre) => genre.name )
                     .join(", ")}
                 </div>
               </div>

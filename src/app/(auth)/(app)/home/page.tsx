@@ -91,7 +91,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold mb-6">Xu hướng hiện tại</h2>
 
             <Swiper
-              className="!overflow-visible"
+              className="!p-12"
               modules={[Autoplay]}
               autoplay={{
                 delay: 3000, // 5 giây
@@ -126,7 +126,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold mb-6">Phổ biến trên Netflop</h2>
 
             <Swiper
-              className="!overflow-visible"
+              className="!p-12"
               modules={[Autoplay]}
               autoplay={{
                 delay: 3000, // 3 giây
@@ -164,7 +164,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold mb-6">Thể loại phim hành động</h2>
 
             <Swiper
-              className="!overflow-visible"
+              className="!p-12"
               modules={[Autoplay]}
               autoplay={{
                 delay: 3000, // 3 giây

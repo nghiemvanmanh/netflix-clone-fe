@@ -50,7 +50,7 @@ export function FeaturedMovie({ movie }: FeaturedMovieProps) {
             </span>
             <span className="text-gray-300">
               {movie.genres
-                .map((genre) => GENRES[genre.name as keyof typeof GENRES])
+                .map((genre) => genre.name )
                 .join(", ")}
             </span>
           </div>
