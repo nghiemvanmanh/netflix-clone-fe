@@ -15,9 +15,9 @@ import {
 import { useQuery } from "react-query";
 import { Check, Star, Crown, Zap, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { loadStripe } from "@stripe/stripe-js";
 import { fetcher } from "../../../../utils/fetcher";
 import Cookies from "js-cookie";
+import { loadStripe } from "@stripe/stripe-js";
 import Loading from "@/components/ui/loading";
 import { motion } from "framer-motion";
 import { useUser } from "@/contexts/user-provider";
@@ -94,16 +94,11 @@ export default function SubscriptionPage() {
         }
       );
 
-      const { sessionId } = await response.data;
+      const { url } = await response.data;
 
-      // Redirect to Stripe Checkout
-      const stripe = await stripePromise;
-      if (stripe) {
-        const { error } = await stripe.redirectToCheckout({ sessionId });
-        if (error) {
-          console.error("Stripe redirect error:", error);
-          throw new Error(error.message);
-        }
+      // Redirect to Stripe Checkout using the URL
+      if (url) {
+        window.location.href = url;
       }
     } catch (error) {
       console.error("Subscription error:", error);
